@@ -23,13 +23,22 @@ object ScalaBasics {
     val p = line.split(",")
     Row(p(0).toInt, p(1), p(2), p(3).toInt, p(4).toInt, p(5).toString, 
             p(6).toInt, p(7), p(8), p(9), p(10).toDouble, p(11).toDouble, p(12).toDouble)
-     }
+    }
   }
+
 	def main(args: Array[String]): Unit = {
       //val source = scala.io.Source.fromFile("/users/mlewis/workspaceF18/CSCI3395-F18/data/BasicScala/IHME_GLOBAL_EDUCATIONAL_ATTAINMENT_1970_2015_Y2015M04D27.CSV")
       val source = scala.io.Source.fromFile("/mnt/c/Users/Dillon/comp/datasets/scalaBasics/IHME_GLOBAL_EDUCATIONAL_ATTAINMENT_1970_2015_Y2015M04D27.CSV")
       val lines = source.getLines()
       val data = lines.drop(1).map(parseLine).toArray
-      val p = data.map(_.metric)
+      val metrics = scala.collection.mutable.Set.empty[String]
+      data.map(d => metrics += d.metric)
+      
+      /*Highest Edu Per Capita Values*/
+      val epcs = data.filter(_.metric == "Education Per Capita")
+      epcs.sortBy(_.upper).takeRight(5).foreach(println)
+
+      /*Largest Increase*/
+      //go find all the lowest and highest values, then calculate the difference -- use map that keeps track of largest value (like rainy temp thing)
     }
 }
