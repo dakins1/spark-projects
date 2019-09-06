@@ -4,6 +4,7 @@ import swiftvis2.plotting.Plot
 import swiftvis2.plotting.styles.ScatterStyle
 import swiftvis2.plotting.renderer.SwingRenderer
 
+
 /**
  * This is here to remind you how to write Scala and to make it so that
  * the directories for src actually go into the git repository.
@@ -11,7 +12,7 @@ import swiftvis2.plotting.renderer.SwingRenderer
 case class Row(loc_id:Int, loc_code:String, loc_name:String, year:Int, age_id:Int, age_name:String, sex_id:Int, sex_name:String, metric:String, unit:String,
                mean:Double, upper:Double, lower:Double)
 
-case class GdpRow(country:String, code:String, indic_name:String, indic_code:String, gdps:scala.collection.immutable.Map[Int, Option[Double]])
+case class GdpRow(name:String, code:String, indic_name:String, indic_code:String, gdps:scala.collection.immutable.Map[Int, Option[Double]])
 
 object ScalaBasics {
 
@@ -34,20 +35,15 @@ object ScalaBasics {
      if (prePrep.length > 62) line.replaceFirst(",", "").split(",")
      else line.split(",")
    }.map(_.filter(c => c != '"')) 
-   if (prep.length > 62) println("Uh oh" + prep(0))
    val name = prep(0)
    val code = prep(1)
    val indic = prep(2)
    val indicCode = prep(3)
   val gdp = prep.drop(4)
-  var i = 0;
-  
   val (map, _) = gdp.foldLeft((scala.collection.immutable.Map.empty[Int, Option[Double]], 1960)){
     case ((m, yr), gVal) => 
     if (!gVal.isEmpty) (m+(yr -> Some(gVal.toDouble)), yr+1) else (m+(yr->None), yr+1)
   }
-  println(name)
-  map.toSeq.sortBy(_._1).foreach(println)
    GdpRow(name, code, indic, indicCode, map)
   }   
 
@@ -61,21 +57,71 @@ object ScalaBasics {
       
       /*Highest Edu Per Capita Values*/
       val epcs = data.filter(_.metric == "Education Per Capita")
-      epcs.sortBy(_.upper).takeRight(5).foreach(println)
+      //get each a country a map of its values
+      
+      /* 2. 5 Highest Countries */
+      //epcs.sortBy(_.upper).takeRight(5).foreach(println)
 
       /*Largest Increase*/
       //go find all the lowest and highest values, then calculate the difference -- use map that keeps track of largest value (like rainy temp thing)
+      //case class EduInfo(name:String, vals:Array[Double]) 
 
-      /* 4. Largest GDP in 1970 */
+      def mapify(rows: Array[Row]): Map[String, Map[Int, Double]] = {
+        val freshMap = rows.map(r => (r.loc_name+" "+r.age_name +" "+r.sex_name) -> (Map.empty[Int, Double])).toMap
+        rows.foldLeft(freshMap)
+        {(countryMap, r) => {
+          val id = (r.loc_name+" "+r.age_name +" "+r.sex_name)
+          val yearMap = countryMap(id)
+          val newMap = yearMap + (r.year -> r.upper)
+          countryMap + (id -> newMap)
+        }
+      }
+      }
+      case class CountryEdu(id:String, vals:Map[Int, Double])
+      val info = mapify(epcs).foldLeft(List[CountryEdu]())((lst, m) => CountryEdu(m._1, m._2) :: lst )
+      case class MinMax(name:String, min:Double, minYr:Int, max:Double, maxYr:Int, diff:Double)
+      val eduMimas = info.foldLeft(List[MinMax]()){
+        (lst, cedu) =>
+        val (minYr, minOp) = cedu.vals.minBy{case (k,v) => v}
+        val (maxYr, maxOp) = cedu.vals.maxBy{case (k,v) => v}
+          val min = minOp
+          val max = maxOp
+          MinMax(cedu.id, min, minYr, max, maxYr, max - min) :: lst
+      }
+      val eduMaxBoi = eduMimas.maxBy(_.diff)
+      println("Max edu diff: " + eduMaxBoi)
+
+      /* 4 & 5 Largest GDP in 1970 */
       val source1 = scala.io.Source.fromFile("/mnt/c/Users/Dillon/comp/datasets/scalaBasics/API_NY.GDP.PCAP.KD_DS2_en_csv_v2_10081022.csv")
       val lines1 = source1.getLines()
-      val data1 = lines1.drop(5).map(parseGdp).toArray
-      //data1.map(_.foreach(println))
+      val gRows = lines1.drop(5).map(parseGdp).toArray
+      val g1 = gRows.maxBy(_.gdps(1970).getOrElse(-1.0))
+      val h1 = g1.gdps(1970).get
+      println("Highest in 1970: " + g1.name + " " + g1.gdps(1970).get)
+      val g2 = gRows.minBy(_.gdps(1970).getOrElse(h1))
+      println("Lowest in 1970: " + g2.name + " " + g2.gdps(1970).get)
+      val g3 = gRows.maxBy(_.gdps(2015).getOrElse(-1.0))
+      val h2 = g1.gdps(1970).get
+      println("Highest in 2015: " + g3.name + " " + g1.gdps(2015).get)
+      val g4 = gRows.minBy(_.gdps(2015).getOrElse(h2))
+      println("Lowest in 2015: " + g4.name + " " + g2.gdps(2015).get)
 
+      /* 6. Largest GDP Increase from 1970 to 2015 */ 
+     // case class MinMax(name:String, min:Double, minYr:Int, max:Double, maxYr:Int, diff:Double)
+      val mimas = gRows.foldLeft(List[MinMax]()){
+        (lst, row) =>
+        val (minYr, minOp) = row.gdps.minBy{case (k,v) => v.getOrElse(100000000.0)}
+        val (maxYr, maxOp) = row.gdps.maxBy{case (k,v) => v.getOrElse(-1.0)}
+        if (minOp != None) {
+          val min = minOp.get
+          val max = maxOp.get
+          MinMax(row.name, min, minYr, max, maxYr, max - min) :: lst
+        } else lst       
+      }
+      val maxBoi = mimas.maxBy(_.diff)
+      println("Max diff: " + maxBoi)
 
       source.close()
       source1.close()
     }
-
-
-}
+  }
