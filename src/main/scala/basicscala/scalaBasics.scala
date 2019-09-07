@@ -1,5 +1,5 @@
 package basicscala
-
+import swiftvis2.plotting._
 import swiftvis2.plotting.Plot
 import swiftvis2.plotting.styles.ScatterStyle
 import swiftvis2.plotting.renderer.SwingRenderer
@@ -78,7 +78,7 @@ object ScalaBasics {
       }
       }
       case class CountryEdu(id:String, vals:Map[Int, Double])
-      val info = mapify(epcs).foldLeft(List[CountryEdu]())((lst, m) => CountryEdu(m._1, m._2) :: lst )
+      val info = mapify(epcs).foldLeft(List[CountryEdu]())((lst, m) => CountryEdu(m._1, m._2) :: lst ).toArray
       case class MinMax(name:String, min:Double, minYr:Int, max:Double, maxYr:Int, diff:Double)
       val eduMimas = info.foldLeft(List[MinMax]()){
         (lst, cedu) =>
@@ -120,6 +120,14 @@ object ScalaBasics {
       }
       val maxBoi = mimas.maxBy(_.diff)
       println("Max diff: " + maxBoi)
+
+      /* 7. Plot of 3 countries, Females 25-34 by year */
+      val cg = ColorGradient(1946.0 -> RedARGB, 1975.0 -> BlueARGB, 2014.0 -> GreenARGB)
+      // val sizes = info.map(_.vals.map(_._2 * 2 + 2))
+      val tempByDayPlot = Plot.simple(
+        ScatterStyle(info(4).vals.map(_._1).toArray[Int], info(4).vals.map(_._2).toArray[Double]), 
+      "SA Temps", "Day of Year", "Temp")
+      SwingRenderer(tempByDayPlot, 800, 800, true)
 
       source.close()
       source1.close()
