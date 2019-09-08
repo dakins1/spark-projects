@@ -155,8 +155,91 @@ object ScalaBasics {
 
       val gdpPlots = Plot.scatterPlots(pdataGdp, "Green is Switzerland, Red is Malawi, Blue is South Asia, all upper values", "Year", "GDP")
       SwingRenderer(gdpPlots, 800, 800, true)
+
+     /* GDP vs. EPC of Males 25-34 */
+     //use the strings to match the names as well as year
+     //info = epcs in CountryEdu
+     //gRows = GDP rows
+     val (xVals, yVals, _) = gRows.foldLeft((List[Double](), List[Double](), 1970)){
+       //include something for 2016,17 data missing
+       case ((gdp, epc, yr), gRow) => 
+        // if (yr <= 2015) {
+          gRow.gdps(yr) match {
+            case Some(g) => {
+              println(gRow.name)
+              val newGdp = g :: gdp
+              val eData = info.filter(r => r.id.contains(gRow.name) && r.id.contains("25 to 34 Males"))
+              if (eData.length == 1) (newGdp, eData(0).vals(yr) :: epc, yr)
+              else (gdp, epc, yr)
+            }
+            case None => (gdp, epc, yr)
+          }
+        // } else (gdp, epc, yr+1)
+     }
+
+     val (xVals2015, yVals2015, _) = gRows.foldLeft((List[Double](), List[Double](), 2015)){
+      //include something for 2016,17 data missing
+      case ((gdp, epc, yr), gRow) => 
+       // if (yr <= 2015) {
+         gRow.gdps(yr) match {
+           case Some(g) => {
+             println(gRow.name)
+             val newGdp = g :: gdp
+             val eData = info.filter(r => r.id.contains(gRow.name) && r.id.contains("25 to 34 Males"))
+             if (eData.length == 1) (newGdp, eData(0).vals(yr) :: epc, yr)
+             else (gdp, epc, yr)
+           }
+           case None => (gdp, epc, yr)
+         }
+       // } else (gdp, epc, yr+1)
+    }
+
+    val (xValsF15, yValsF15, _) = gRows.foldLeft((List[Double](), List[Double](), 2015)){
+      //include something for 2016,17 data missing
+      case ((gdp, epc, yr), gRow) => 
+       // if (yr <= 2015) {
+         gRow.gdps(yr) match {
+           case Some(g) => {
+             println(gRow.name)
+             val newGdp = g :: gdp
+             val eData = info.filter(r => r.id.contains(gRow.name) && r.id.contains("25 to 34 Females"))
+             if (eData.length == 1) (newGdp, eData(0).vals(yr) :: epc, yr)
+             else (gdp, epc, yr)
+           }
+           case None => (gdp, epc, yr)
+         }
+       // } else (gdp, epc, yr+1)
+    }
+
+    val (xValsF70, yValsF70, _) = gRows.foldLeft((List[Double](), List[Double](), 1970)){
+      //include something for 2016,17 data missing
+      case ((gdp, epc, yr), gRow) => 
+       // if (yr <= 2015) {
+         gRow.gdps(yr) match {
+           case Some(g) => {
+             println(gRow.name)
+             val newGdp = g :: gdp
+             val eData = info.filter(r => r.id.contains(gRow.name) && r.id.contains("25 to 34 Females"))
+             if (eData.length == 1) (newGdp, eData(0).vals(yr) :: epc, yr)
+             else (gdp, epc, yr)
+           }
+           case None => (gdp, epc, yr)
+         }
+       // } else (gdp, epc, yr+1)
+    }
+
+     val gdpxEpc = Plot.simple(ScatterStyle(xVals, yVals), "GDP x EPC - 1970", "GDP", "EPC")
+     val gdpxEpc2015 = Plot.simple(ScatterStyle(xVals2015, yVals2015), "GDP x EPC - 2015", "GDP", "EPC")
+     val gdpxEpcF15 = Plot.simple(ScatterStyle(xValsF15, yValsF15), "GDP x EPC - Females 2015", "GDP", "EPC")
+     val gdpxEpcF70 = Plot.simple(ScatterStyle(xValsF70, yValsF70), "GDP x EPC - Females 1970", "GDP", "EPC")
+     SwingRenderer(gdpxEpc, 800, 800, true)
+     SwingRenderer(gdpxEpc2015, 800, 800, true)
+     SwingRenderer(gdpxEpcF15, 800, 800, true)
+     SwingRenderer(gdpxEpcF70, 800, 800, true)
+
+
+
       /*
-        
       val pdataGdp = scala.collection.immutable.Seq(
         (ArrayToDoubleSeries(gs(0).gdps.map(_._1).toArray[Int]),ArrayToDoubleSeries(gs(0).gdps.map(_._2).toArray[Double]), IntToIntSeries(GreenARGB), DoubleToDoubleSeries(6)),
         (ArrayIntToDoubleSeries(gs(1).gdps.map(_._1).toArray[Int]), ArrayToDoubleSeries(gs(1).gdps.map(_._2).toArray[Double]),
