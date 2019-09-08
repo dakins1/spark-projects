@@ -33,4 +33,4 @@ Lowest in 2015: Burundi 1342.26306433207
 ![Another Plot](scalaBasics8)
 
 9) GDP x EPC
-![P1](\src\main\scala\basicScala\Images\scalaBasics\scalaBasics9)
+![P1](\src\main\scala\basicscala\Images\scalaBasics\scalaBasics9)
