@@ -27,6 +27,6 @@ Lowest in 2015: Burundi 1342.26306433207
     27085.591034599in 1960 to 111968.349480982 in 2007, difference of 84882.758446383
 
 7) Education Per Capita Plot
-![Plot]("\scalaBasics7")
+![Plot](\scalaBasics7)
 
 
