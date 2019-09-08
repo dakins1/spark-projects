@@ -141,7 +141,29 @@ object ScalaBasics {
         IntToIntSeries(BlueARGB), DoubleToDoubleSeries(6)))
       val plots = Plot.scatterPlots(pdata, "Green is Switzerland, Red is Malawi, Blue is South Asia, all upper values", "Year", "EPC")
       SwingRenderer(plots, 800, 800, true)
-       
+
+      /* 8. Plot of those^ countries but with GDP */
+      val gs = gRows.filter(r => r.name == "Switzerland" || r.name == "Malawi" || r.name == "South Asia").toArray
+      val gm = gs.map(r => r.gdps.filter(p => p._2 != None)).map(_.unzip).map(p => (p._1.map(_.toDouble).toArray, p._2.map(_.get).toArray))
+      
+      val pdataGdp = scala.collection.immutable.Seq(
+        (ArrayToDoubleSeries(gm(0)._1.toArray[Double]),ArrayToDoubleSeries(gm(0)._2.toArray[Double]), IntToIntSeries(GreenARGB), DoubleToDoubleSeries(6)),
+        (ArrayToDoubleSeries(gm(1)._1.toArray[Double]), ArrayToDoubleSeries(gm(1)._2.toArray[Double]),
+          IntToIntSeries(RedARGB), DoubleToDoubleSeries(6)),
+        (ArrayToDoubleSeries(gm(2)._1.toArray[Double]), ArrayToDoubleSeries(gm(2)._2.toArray[Double]),
+        IntToIntSeries(BlueARGB), DoubleToDoubleSeries(6)))
+
+      val gdpPlots = Plot.scatterPlots(pdataGdp, "Green is Switzerland, Red is Malawi, Blue is South Asia, all upper values", "Year", "GDP")
+      SwingRenderer(gdpPlots, 800, 800, true)
+      /*
+        
+      val pdataGdp = scala.collection.immutable.Seq(
+        (ArrayToDoubleSeries(gs(0).gdps.map(_._1).toArray[Int]),ArrayToDoubleSeries(gs(0).gdps.map(_._2).toArray[Double]), IntToIntSeries(GreenARGB), DoubleToDoubleSeries(6)),
+        (ArrayIntToDoubleSeries(gs(1).gdps.map(_._1).toArray[Int]), ArrayToDoubleSeries(gs(1).gdps.map(_._2).toArray[Double]),
+          IntToIntSeries(RedARGB), DoubleToDoubleSeries(6)),
+        (ArrayIntToDoubleSeries(gs(2).gdps.map(_._1).toArray[Int]), ArrayToDoubleSeries(gs(2).gdps.map(_._2).toArray[Double]),
+        IntToIntSeries(BlueARGB), DoubleToDoubleSeries(6)))
+        */
 
       source.close()
       source1.close()

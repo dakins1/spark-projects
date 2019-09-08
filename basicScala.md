@@ -29,4 +29,7 @@ Lowest in 2015: Burundi 1342.26306433207
 7) Education Per Capita Plot
 ![Plot](scalaBasics7)
 
+8) GDP Plot
+![Another Plot](scalaBasics8)
+
 
