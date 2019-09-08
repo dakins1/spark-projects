@@ -49,7 +49,8 @@ object ScalaBasics {
 
 	def main(args: Array[String]): Unit = {
       //val source = scala.io.Source.fromFile("/users/mlewis/workspaceF18/CSCI3395-F18/data/BasicScala/IHME_GLOBAL_EDUCATIONAL_ATTAINMENT_1970_2015_Y2015M04D27.CSV")
-      val source = scala.io.Source.fromFile("/mnt/c/Users/Dillon/comp/datasets/scalaBasics/IHME_GLOBAL_EDUCATIONAL_ATTAINMENT_1970_2015_Y2015M04D27.CSV")
+      //val source = scala.io.Source.fromFile("/mnt/c/Users/Dillon/comp/datasets/scalaBasics/IHME_GLOBAL_EDUCATIONAL_ATTAINMENT_1970_2015_Y2015M04D27.CSV")
+      val source = scala.io.Source.fromFile("C:\\Users\\Dillon\\comp\\datasets\\scalaBasics\\IHME_GLOBAL_EDUCATIONAL_ATTAINMENT_1970_2015_Y2015M04D27.CSV")
       val lines = source.getLines()
       val data = lines.drop(1).map(parseLine).toArray
       val metrics = scala.collection.mutable.Set.empty[String]
@@ -57,15 +58,11 @@ object ScalaBasics {
       
       /*Highest Edu Per Capita Values*/
       val epcs = data.filter(_.metric == "Education Per Capita")
-      //get each a country a map of its values
       
       /* 2. 5 Highest Countries */
       //epcs.sortBy(_.upper).takeRight(5).foreach(println)
 
       /*Largest Increase*/
-      //go find all the lowest and highest values, then calculate the difference -- use map that keeps track of largest value (like rainy temp thing)
-      //case class EduInfo(name:String, vals:Array[Double]) 
-
       def mapify(rows: Array[Row]): Map[String, Map[Int, Double]] = {
         val freshMap = rows.map(r => (r.loc_name+" "+r.age_name +" "+r.sex_name) -> (Map.empty[Int, Double])).toMap
         rows.foldLeft(freshMap)
@@ -92,7 +89,9 @@ object ScalaBasics {
       println("Max edu diff: " + eduMaxBoi)
 
       /* 4 & 5 Largest GDP in 1970 */
-      val source1 = scala.io.Source.fromFile("/mnt/c/Users/Dillon/comp/datasets/scalaBasics/API_NY.GDP.PCAP.KD_DS2_en_csv_v2_10081022.csv")
+      // val source1 = scala.io.Source.fromFile("/mnt/c/Users/Dillon/comp/datasets/scalaBasics/API_NY.GDP.PCAP.KD_DS2_en_csv_v2_10081022.csv")
+      // val source1 = scala.io.Source.fromFile("/mnt/c/Users/Dillon/comp/datasets/scalaBasics/API_NY.GDP.PCAP.KD_DS2_en_csv_v2_10081022.csv")
+      val source1 = scala.io.Source.fromFile("C:\\Users\\Dillon\\comp\\datasets\\scalaBasics\\API_NY.GDP.PCAP.KD_DS2_en_csv_v2_10081022.csv")
       val lines1 = source1.getLines()
       val gRows = lines1.drop(5).map(parseGdp).toArray
       val g1 = gRows.maxBy(_.gdps(1970).getOrElse(-1.0))
@@ -107,7 +106,6 @@ object ScalaBasics {
       println("Lowest in 2015: " + g4.name + " " + g2.gdps(2015).get)
 
       /* 6. Largest GDP Increase from 1970 to 2015 */ 
-     // case class MinMax(name:String, min:Double, minYr:Int, max:Double, maxYr:Int, diff:Double)
       val mimas = gRows.foldLeft(List[MinMax]()){
         (lst, row) =>
         val (minYr, minOp) = row.gdps.minBy{case (k,v) => v.getOrElse(100000000.0)}
@@ -126,8 +124,24 @@ object ScalaBasics {
       // val sizes = info.map(_.vals.map(_._2 * 2 + 2))
       val tempByDayPlot = Plot.simple(
         ScatterStyle(info(4).vals.map(_._1).toArray[Int], info(4).vals.map(_._2).toArray[Double]), 
-      "SA Temps", "Day of Year", "Temp")
-      SwingRenderer(tempByDayPlot, 800, 800, true)
+      info(4).id, "Year", "Education Per Capita")
+      val plot2 = Plot.simple(ScatterStyle(info(5).vals.map(_._1).toArray[Int], info(5).vals.map(_._2).toArray[Double]), 
+      info(4).id, "Year", "Education Per Capita")
+
+      val y = ArrayIntToDoubleSeries(info(4).vals.map(_._1).toArray)
+      val group = info.filter(r => r.id.contains("25 to 34 Females"))
+      // group.foreach(r => println(info.indexOf(r)))
+      // println(info(4).id)
+      Array(4, 21, 48).foreach(i => println(info(i).id))
+      val pdata = scala.collection.immutable.Seq(
+        (y,ArrayToDoubleSeries(info(4).vals.map(_._2).toArray[Double]), IntToIntSeries(GreenARGB), DoubleToDoubleSeries(6)),
+        (ArrayIntToDoubleSeries(info(21).vals.map(_._1).toArray[Int]), ArrayToDoubleSeries(info(21).vals.map(_._2).toArray[Double]),
+          IntToIntSeries(RedARGB), DoubleToDoubleSeries(6)),
+        (ArrayIntToDoubleSeries(info(48).vals.map(_._1).toArray[Int]), ArrayToDoubleSeries(info(48).vals.map(_._2).toArray[Double]),
+        IntToIntSeries(BlueARGB), DoubleToDoubleSeries(6)))
+      val plots = Plot.scatterPlots(pdata, "Green is Switzerland, Red is Malawi, Blue is South Asia, all upper values", "Year", "EPC")
+      SwingRenderer(plots, 800, 800, true)
+       
 
       source.close()
       source1.close()
