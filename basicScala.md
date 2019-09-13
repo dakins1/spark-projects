@@ -37,3 +37,5 @@ Lowest in 2015: Burundi 1342.26306433207
 ![P1](/src/main/scala/basicscala/Images/scalaBasics/scalaBasics9.2)
 ![P1](/src/main/scala/basicscala/Images/scalaBasics/scalaBasics9.3F)
 ![P1](/src/main/scala/basicscala/Images/scalaBasics/scalaBasics9.4F)
+
+
