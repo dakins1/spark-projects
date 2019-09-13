@@ -1,5 +1,7 @@
 name := "BigData and Machine Learning"
- 
+
+run / fork := true
+
 version := "1.0"
 
 scalaVersion := "2.12.8"
