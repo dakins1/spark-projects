@@ -48,9 +48,9 @@ object ScalaBasics {
   }   
 
 	def main(args: Array[String]): Unit = {
-      //val source = scala.io.Source.fromFile("/users/mlewis/workspaceF18/CSCI3395-F18/data/BasicScala/IHME_GLOBAL_EDUCATIONAL_ATTAINMENT_1970_2015_Y2015M04D27.CSV")
-      //val source = scala.io.Source.fromFile("/mnt/c/Users/Dillon/comp/datasets/scalaBasics/IHME_GLOBAL_EDUCATIONAL_ATTAINMENT_1970_2015_Y2015M04D27.CSV")
-      val source = scala.io.Source.fromFile("C:\\Users\\Dillon\\comp\\datasets\\scalaBasics\\IHME_GLOBAL_EDUCATIONAL_ATTAINMENT_1970_2015_Y2015M04D27.CSV")
+      val source = scala.io.Source.fromFile("/users/mlewis/workspaceF18/CSCI3395-F18/data/BasicScala/IHME_GLOBAL_EDUCATIONAL_ATTAINMENT_1970_2015_Y2015M04D27.CSV")
+      // val source = scala.io.Source.fromFile("/mnt/c/Users/Dillon/comp/datasets/scalaBasics/IHME_GLOBAL_EDUCATIONAL_ATTAINMENT_1970_2015_Y2015M04D27.CSV")
+      // val source = scala.io.Source.fromFile("C:\\Users\\Dillon\\comp\\datasets\\scalaBasics\\IHME_GLOBAL_EDUCATIONAL_ATTAINMENT_1970_2015_Y2015M04D27.CSV")
       val lines = source.getLines()
       val data = lines.drop(1).map(parseLine).toArray
       val metrics = scala.collection.mutable.Set.empty[String]
@@ -89,9 +89,10 @@ object ScalaBasics {
       println("Max edu diff: " + eduMaxBoi)
 
       /* 4 & 5 Largest GDP in 1970 */
+      val source1 = scala.io.Source.fromFile("/users/mlewis/workspaceF18/CSCI3395-F18/data/BasicScala/API_NY.GDP.PCAP.KD_DS2_en_csv_v2_10081022.csv")
       // val source1 = scala.io.Source.fromFile("/mnt/c/Users/Dillon/comp/datasets/scalaBasics/API_NY.GDP.PCAP.KD_DS2_en_csv_v2_10081022.csv")
       // val source1 = scala.io.Source.fromFile("/mnt/c/Users/Dillon/comp/datasets/scalaBasics/API_NY.GDP.PCAP.KD_DS2_en_csv_v2_10081022.csv")
-      val source1 = scala.io.Source.fromFile("C:\\Users\\Dillon\\comp\\datasets\\scalaBasics\\API_NY.GDP.PCAP.KD_DS2_en_csv_v2_10081022.csv")
+      // val source1 = scala.io.Source.fromFile("C:\\Users\\Dillon\\comp\\datasets\\scalaBasics\\API_NY.GDP.PCAP.KD_DS2_en_csv_v2_10081022.csv")
       val lines1 = source1.getLines()
       val gRows = lines1.drop(5).map(parseGdp).toArray
       val g1 = gRows.maxBy(_.gdps(1970).getOrElse(-1.0))
@@ -127,8 +128,8 @@ object ScalaBasics {
       info(4).id, "Year", "Education Per Capita")
       val plot2 = Plot.simple(ScatterStyle(info(5).vals.map(_._1).toArray[Int], info(5).vals.map(_._2).toArray[Double]), 
       info(4).id, "Year", "Education Per Capita")
-
       val y = ArrayIntToDoubleSeries(info(4).vals.map(_._1).toArray)
+      
       val group = info.filter(r => r.id.contains("25 to 34 Females"))
       // group.foreach(r => println(info.indexOf(r)))
       // println(info(4).id)
