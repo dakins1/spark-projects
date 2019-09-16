@@ -98,7 +98,13 @@ object SparkRDD {
     /* 8. How many SA stations reported data in 2017? */
     val saReporters = saStations.filter(s => reporters.contains(s.id)).distinct().count()
     println("SA reporters: " + saReporters)
- /*   
+
+    /* 9. Largest increase in daily high temps in SA */
+    val saSet = saStations.map(_.id).collect().toSet
+    val saReports = reportData.filter(r => saSet.contains(r.id))
+    val maxDiff = saReports.fold(0.0)((d1, d2) => if (d1))
+    
+    /*   
     Top 
     29.600833, -98.720639
     Bottom
