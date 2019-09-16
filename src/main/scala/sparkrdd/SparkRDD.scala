@@ -39,6 +39,7 @@ object SparkRDD {
         )
       }.cache()
 
+    println(stationData.count())
     val reportLines = sc.textFile("/users/mlewis/workspaceF18/CSCI3395-F18/data/ghcn-daily/2017.csv")
     val reportData = reportLines
       .map { line =>
@@ -50,8 +51,7 @@ object SparkRDD {
           p(2), 
           p(3).toInt
         )
-      }.cache()
-
+      }
 
     /* 1. Number of Stations in Texas */
     val txStations = stationData.filter(sr => sr.state == "TX")
@@ -64,14 +64,24 @@ object SparkRDD {
     val tMaxReport = reportData.filter(r => r.obType == "TMAX").sortBy(_.obValue).collect.takeRight(1)(0)
     val tMaxStation = stationData.filter(r => r.id == tMaxReport.id).take(1)(0)
     val res3 = tMaxReport.obValue/10.0 + " " + countries(tMaxStation.id.take(2)) + " " + tMaxStation.state + " " + tMaxReport.year + " " + tMaxReport.mmdd
-    
+    println(res3 + "****Make sure you get the date****`")
     /* 4. How many stations haven't reported data in 2017? */
     val stationSet = stationData.map(_.id).collect().toSet
     val unreporters = reportData.filter(d => !stationSet.contains(d.id)).distinct().count()
-    println(unreporters)
+
+    val reporters = reportData.map(_.id).distinct().collect().toSet
+    val unreports = stationData.filter(d => !reporters.contains(d.id)).count
+    println(unreports + " unreporting stations")
+    // println(unreporters + "I hope this isn't 0")
 
     /* 5. Max rainfall for any station in Texas during 2017, what station and when */
-    val txMaxRainfall = reportData.filter(r => r.obType == "PRCP").sortBy(_.obValue).collect().takeRight(1)(0)
+    val txMaxRainfall = reportData.filter(r => r.obType == "PRCP" && txStationSet.contains(r.id)).sortBy(_.obValue).collect().takeRight(1)(0)
+    println(txMaxRainfall)
+
+    /* 6. Max rainfall for any station in India, what station and when */
+    val indiaStationSet = stationData.filter(s => s.id.take(2) == "IN").map(_.id).collect().toSet
+    val indiaMaxRainfall = reportData.filter(r => r.obType == "PRCP" && indiaStationSet.contains(r.id)).sortBy(_.obValue).collect().takeRight(1)(0)
+    println(indiaMaxRainfall)
 
     //make sure to divide by 10
 
