@@ -21,12 +21,14 @@ object SparkRDD {
     val sc = new SparkContext(conf)
     sc.setLogLevel("WARN")
 
-    val countriesLines = sc.textFile("/users/mlewis/workspaceF18/CSCI3395-F18/data/ghcn-daily/ghcnd-countries.txt")
+    // val countriesLines = sc.textFile("/users/mlewis/workspaceF18/CSCI3395-F18/data/ghcn-daily/ghcnd-countries.txt")
+    val countriesLines = sc.textFile("C:\\Users\\Dillon\\comp\\datasets\\sparkRDD\\ghcnd-countries.txt")
     val countries = countriesLines.collect.foldLeft((scala.collection.immutable.Map.empty[String, String])){
       (map, line) => map + (line.take(2) -> line.drop(3))
     }
 
-    val stationLines = sc.textFile("/users/mlewis/workspaceF18/CSCI3395-F18/data/ghcn-daily/ghcnd-stations.txt")
+    // val stationLines = sc.textFile("/users/mlewis/workspaceF18/CSCI3395-F18/data/ghcn-daily/ghcnd-stations.txt")
+    val stationLines = sc.textFile("C:\\Users\\Dillon\\comp\\datasets\\sparkRDD\\ghcnd-stations.txt")
     val stationData = stationLines
       .map { line =>
         StationRow(
@@ -40,7 +42,8 @@ object SparkRDD {
       }.cache()
 
     println(stationData.count())
-    val reportLines = sc.textFile("/users/mlewis/workspaceF18/CSCI3395-F18/data/ghcn-daily/2017.csv")
+    // val reportLines = sc.textFile("/users/mlewis/workspaceF18/CSCI3395-F18/data/ghcn-daily/2017.csv")
+    val reportLines = sc.textFile("C:\\Users\\Dillon\\comp\\datasets\\sparkRDD\\2017.csv")
     val reportData = reportLines
       .map { line =>
         val p = line.split(",")
@@ -53,6 +56,9 @@ object SparkRDD {
         )
       }
 
+    val reporters = reportData.map(_.id).distinct().collect().toSet
+      
+/*
     /* 1. Number of Stations in Texas */
     val txStations = stationData.filter(sr => sr.state == "TX")
 
@@ -69,7 +75,6 @@ object SparkRDD {
     val stationSet = stationData.map(_.id).collect().toSet
     val unreporters = reportData.filter(d => !stationSet.contains(d.id)).distinct().count()
 
-    val reporters = reportData.map(_.id).distinct().collect().toSet
     val unreports = stationData.filter(d => !reporters.contains(d.id)).count
     println(unreports + " unreporting stations")
     // println(unreporters + "I hope this isn't 0")
@@ -78,13 +83,27 @@ object SparkRDD {
     val txMaxRainfall = reportData.filter(r => r.obType == "PRCP" && txStationSet.contains(r.id)).sortBy(_.obValue).collect().takeRight(1)(0)
     println(txMaxRainfall)
 
+
     /* 6. Max rainfall for any station in India, what station and when */
     val indiaStationSet = stationData.filter(s => s.id.take(2) == "IN").map(_.id).collect().toSet
     val indiaMaxRainfall = reportData.filter(r => r.obType == "PRCP" && indiaStationSet.contains(r.id)).sortBy(_.obValue).collect().takeRight(1)(0)
     println(indiaMaxRainfall)
 
-    //make sure to divide by 10
+*/
 
+    /* 7. How many stations associated with San Antonio, TX? */
+    val saStations = stationData.filter(s => (s.lat <= 29.6008 && s.lat >= 29.2300) && (s.lon >= -98.7206 && s.lon <= -98.2357))
+    println("San Antonio stations: " + saStations.count())
+
+    /* 8. How many SA stations reported data in 2017? */
+    val saReporters = saStations.filter(s => reporters.contains(s.id)).distinct().count()
+    println("SA reporters: " + saReporters)
+ /*   
+    Top 
+    29.600833, -98.720639
+    Bottom
+    29.230055, -98.235731
+*/
 
     sc.stop()
     
