@@ -106,7 +106,10 @@ object SparkRDD {
     val saReports = reportData.filter(r => saSet.contains(r.id))
     val saTemps = saReports.filter(r => r.obType == "TMAX").collect()
 
-    val days = saTemps.groupBy(_.mmdd)
+    // val days = saTemps.groupBy(_.mmdd)?
+    val days = saTemps.groupBy(_.id).map(t => (t._1, t._2.groupBy(_.mmdd).map(t => (t._1, t._2.map(_.obValue).max)))
+    // days = (StationID, (Date, MaxTemp for that Station))
+    val maxDays = days.
     val maxDays = days.map{case (k,v) => (k, v.maxBy(_.obValue))}.toSeq.sortBy(_._2.mmdd).map(_._2)
 
     val (maxDiff, _) = maxDays.foldLeft((0, maxDays(0))){
