@@ -29,3 +29,12 @@
     I calculated the coefficient for each station, then took the average of those coefficients:
     -0.143
 
+11) Plot of 5 stations:
+
+CA005062040  53.9667  -97.8500  224.0 MB NORWAY HOUSE
+USC00081306  25.6719  -80.1567    1.8 FL CAPE FLORIDA
+USC00364778  40.1192  -76.4264  109.7 PA LANDISVILLE 2 NW
+MGM00044287  46.1330  100.6830 1859.0    BAYANHONGOR
+SPE00156540  41.6739    1.7678  349.0    SANT SALVADOR DE GUARDIOLA
+
+![Plot](src/main/scala/sparkrdd/plot)

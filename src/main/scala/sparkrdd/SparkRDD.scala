@@ -5,6 +5,7 @@ import org.apache.spark.SparkConf
 import org.apache.spark.SparkContext
 import swiftvis2.plotting._
 import swiftvis2.plotting.renderer.SwingRenderer
+import swiftvis2.plotting.styles.ScatterStyle
 import org.apache.arrow.flatbuf.Bool
 // import swiftvis2.spark._
 
@@ -123,7 +124,7 @@ object SparkRDD {
     // maxDiffs.foreach(println)
     val maxDiff = maxDiffs.maxBy(_._2)
     println("Max difference: " + maxDiff)
-    */
+    
     val days = saTemps.groupBy(_.id).map(t => (t._1, t._2.groupBy(_.mmdd).map(t => (t._1, t._2.map(_.obValue).max))))
     
     val saTmaxs = saReports.filter(s => s.obType == "TMAX").groupBy(_.id).map(t => (t._1 -> t._2.toSeq.sortBy(_.mmdd))).collect()
@@ -151,11 +152,34 @@ object SparkRDD {
     }
     println(coefs.sum / coefs.length)
 
+    */
+    val ids = Set("CA005062040", "USC00081306", "USC00364778", "MGM00044287", "SPE00156540"  )
+    val colorMap = Map("CA005062040" -> GreenARGB, "USC00081306" -> RedARGB, "USC00364778" -> BlackARGB, "MGM00044287" -> BlueARGB, "SPE00156540" -> YellowARGB)
+    val specialReports = reportData.filter(r => r.obType == "TMAX" && ids.contains(r.id)).groupBy(_.id).map(s => s._1 -> s._2.toArray).collect()
+
+    val grossMap = Map(1->0, 2->31, 3->59, 4->90, 5->120, 6->151, 7->181, 8->212, 9->243, 10->273, 11->304, 12->334)
+    def convert(mmdd:Int) :Int = {
+      val mm = if (mmdd > 999) mmdd/1000 else mmdd/100
+      val dd = mmdd.toString.takeRight(2).toInt
+      grossMap(mm) + dd 
+    }
+
+    /*
+    val reporting = reportData.filter(s => s.obType == "TMAX")
+    reporting.foreach(println)
+    */
     
 
+    val plots = specialReports.map{
+      case (id, rows) => 
+      val sorted = rows.sortBy(_.mmdd)
+      ScatterStyle(sorted.map(r => convert(r.mmdd)), sorted.map(_.obValue/10), symbolWidth = 6, symbolHeight = 6, colors = colorMap(id))
+    }.toSeq
 
+    val tempPlot = Plot.stacked(plots, "Green is Canada, Red is Florida, Black is Pennsylvania, Blue is Mongolia, Yellow is Spain", "Day", "TMAX Celsius")
+        SwingRenderer(tempPlot, 800, 800, true)
 
-
+    // styles: Seq[PlotStyle], title: String, xLabel: String, yLabel: String, xType: Axis.ScaleStyle.Value, yType: Axis.ScaleStyle.Value): Plot
     sc.stop()
   }
 }
