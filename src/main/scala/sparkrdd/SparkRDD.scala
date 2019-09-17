@@ -10,7 +10,7 @@ import org.apache.arrow.flatbuf.Bool
 // import swiftvis2.spark._
 
 case class StationRow(id:String, lat:Double, lon:Double, elev:Double, state:String, name:String)
-case class ReportRow(id:String, year:Int, mmdd:Int, obType:String, obValue:Int)
+case class ReportRow(id:String, year:Int, mmdd:Int, obType:String, obValue:Int, qflag:String)
 
 object SparkRDD {
   def main(args:Array[String]) {
@@ -52,26 +52,33 @@ object SparkRDD {
           p(1).take(4).toInt,
           p(1).takeRight(4).toInt,
           p(2), 
-          p(3).toInt
+          p(3).toInt,
+          p(5)
         )
-      }
+      }.filter(r => r.qflag == "")
 
     val reporters = reportData.map(_.id).distinct().collect().toSet
     val tempReporters = reportData.filter(r => r.obType == "TMAX" || r.obType == "TMIN").map(_.id).collect().toSet
       
-/*
+
     /* 1. Number of Stations in Texas */
     val txStations = stationData.filter(sr => sr.state == "TX")
-
+      println(txStations.count())
     /* 2. Number of TX stations that reported data in 2017 */
     val txStationSet = txStations.map(_.id).collect.toSet
     val numInTx = reportData.filter(d => txStationSet.contains(d.id)).map(_.id).distinct().count()
-
+      println(numInTx)
     /* 3. Highest temp reported anywhere this year. When and where was it? */
     val tMaxReport = reportData.filter(r => r.obType == "TMAX").sortBy(_.obValue).collect.takeRight(1)(0)
     val tMaxStation = stationData.filter(r => r.id == tMaxReport.id).take(1)(0)
     val res3 = tMaxReport.obValue/10.0 + " " + countries(tMaxStation.id.take(2)) + " " + tMaxStation.state + " " + tMaxReport.year + " " + tMaxReport.mmdd
     println(res3 + "****Make sure you get the date****`")
+    val tMaxReport1 = reportData.filter(r => r.obType == "TMAX" && r.obValue < 567).sortBy(_.obValue).collect.takeRight(1)(0)
+    val tMaxStation1 = stationData.filter(r => r.id == tMaxReport.id).take(1)(0)
+    val res4 = tMaxReport.obValue/10.0 + " " + countries(tMaxStation.id.take(2)) + " " + tMaxStation.state + " " + tMaxReport.year + " " + tMaxReport.mmdd
+    println(res4)
+
+
     /* 4. How many stations haven't reported data in 2017? */
     val stationSet = stationData.map(_.id).collect().toSet
     val unreporters = reportData.filter(d => !stationSet.contains(d.id)).distinct().count()
@@ -90,7 +97,7 @@ object SparkRDD {
     val indiaMaxRainfall = reportData.filter(r => r.obType == "PRCP" && indiaStationSet.contains(r.id)).sortBy(_.obValue).collect().takeRight(1)(0)
     println(indiaMaxRainfall)
 
-    */
+    
 
     /* 7. How many stations associated with San Antonio, TX? */
     // val saStations = stationData.filter(s => (s.lat <= 29.6008 && s.lat >= 29.2300) && (s.lon >= -98.7206 && s.lon <= -98.2357))
@@ -108,9 +115,9 @@ object SparkRDD {
     val saReports = reportData.filter(r => saSet.contains(r.id))
     val saTemps = saReports.filter(r => r.obType == "TMAX").collect()
 
-    /*
-    val days = saTemps.groupBy(_.id).map(t => (t._1, t._2.groupBy(_.mmdd).map(t => (t._1, t._2.map(_.obValue).max))))
-    val maxDays = days.map(t => (t._1, t._2.toSeq.sortBy(_._1).map(_._2)))
+    
+    val daysz = saTemps.groupBy(_.id).map(t => (t._1, t._2.groupBy(_.mmdd).map(t => (t._1, t._2.map(_.obValue).max))))
+    val maxDays = daysz.map(t => (t._1, t._2.toSeq.sortBy(_._1).map(_._2)))
     
     val maxDiffs = maxDays.map{
       case (id, reps) =>
@@ -153,7 +160,7 @@ object SparkRDD {
     }
     println(coefs.sum / coefs.length)
 
-    */
+    
     
     val ids = Set("CA005062040", "USC00081306", "USC00364778", "MGM00044287", "SPE00156540"  )
     val colorMap = Map("CA005062040" -> GreenARGB, "USC00081306" -> RedARGB, "USC00364778" -> BlackARGB, "MGM00044287" -> BlueARGB, "SPE00156540" -> YellowARGB)
