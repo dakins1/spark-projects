@@ -100,6 +100,7 @@ object SparkRDD {
     /* 8. How many SA stations reported temperature data in 2017? */
     
     val saReporters = saStations.filter(s => tempReporters.contains(s.id)).map(_.id).collect().toSet
+    val saReporter = saStations.filter(s => tempReporters.contains(s.id)).map(_.id).collect()(0)    
     println("SA reporters: " + saReporters.size)
 
     /* 9. Largest increase in daily high temps in SA */
@@ -153,13 +154,15 @@ object SparkRDD {
     println(coefs.sum / coefs.length)
 
     */
+    
     val ids = Set("CA005062040", "USC00081306", "USC00364778", "MGM00044287", "SPE00156540"  )
     val colorMap = Map("CA005062040" -> GreenARGB, "USC00081306" -> RedARGB, "USC00364778" -> BlackARGB, "MGM00044287" -> BlueARGB, "SPE00156540" -> YellowARGB)
+    // val colorMap = Map("CA005062040" -> GreenARGB, saReporter -> RedARGB, "USC00364778" -> BlackARGB, "MGM00044287" -> BlueARGB, "SPE00156540" -> YellowARGB)
     val specialReports = reportData.filter(r => r.obType == "TMAX" && ids.contains(r.id)).groupBy(_.id).map(s => s._1 -> s._2.toArray).collect()
-
+    // val specialReports = reportData.filter(r => r.obType == "TMAX" && r.id == saReporter).groupBy(_.id).map(s => s._1 -> s._2.toArray).collect()
     val grossMap = Map(1->0, 2->31, 3->59, 4->90, 5->120, 6->151, 7->181, 8->212, 9->243, 10->273, 11->304, 12->334)
     def convert(mmdd:Int) :Int = {
-      val mm = if (mmdd > 999) mmdd/1000 else mmdd/100
+      val mm = mmdd/100
       val dd = mmdd.toString.takeRight(2).toInt
       grossMap(mm) + dd 
     }
