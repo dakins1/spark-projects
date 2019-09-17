@@ -14,7 +14,9 @@ For each calculation, I have filtered out any report data that had a quality fla
 
     Iran, June 28, 52.9 degrees celsius. 
 
-    That's pretty hot, but it is about 4 degrees celsius cooler than the hottest temperature ever recorded, 56.7 C. It's also the Middle East during the summer, so it seems like a plausible temperature. 
+    That's pretty hot, but it is about 4 degrees celsius cooler than the hottest temperature ever recorded, 56.7 C. 
+    
+    It's also the Middle East during the summer, so it seems like a plausible temperature. 
 
 
 ### 4) Number of unreporting stations in 2017
