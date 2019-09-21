@@ -7,6 +7,8 @@ import swiftvis2.plotting.renderer.SwingRenderer
 import swiftvis2.plotting.styles.ScatterStyle
 import org.apache.arrow.flatbuf.Bool
 import org.apache.spark.rdd.RDD
+import customML.BasicStats
+
 // import swiftvis2.spark._
 
 case class StationRow(id:String, lat:Double, lon:Double, elev:Double, state:String, name:String)
@@ -15,7 +17,7 @@ case class ReportRow(id:String, year:Int, mmdd:Int, obType:String, obValue:Int, 
 object SpecialRDD  {
 
 def main(args:Array[String]):Unit = {    
-val conf = new SparkConf().setAppName("Temp Data").setMaster("local[*]")
+val conf = new SparkConf().setAppName("Special RDD").setMaster("spark://pandora00:7077")
   val sc = new SparkContext(conf)
   
   sc.setLogLevel("WARN")
@@ -77,6 +79,21 @@ val conf = new SparkConf().setAppName("Temp Data").setMaster("local[*]")
     println("Max diff over year: " + maxYearDiff)
     println(joinedReps.filter(r => r._1 == "RSM00024585").first())
     */
+
+    /* 3. Std. Dev. for all Tmax's for each station */
+    val usMaxs = reports2017.filter(r => r.id.take(2) == "US" && r.obType == "TMAX").map(_.obValue/10.0).collect().toSeq
+    val stdDevMax = customML.BasicStats.stdev(usMaxs)
+    val usMins = reports2017.filter(r => r.id.take(2) == "US" && r.obType == "TMIN").map(_.obValue/10.0).collect().toSeq
+    val stdDevMin = customML.BasicStats.stdev(usMins)
+    println("StdDev max: " + stdDevMax + " min: " + stdDevMin)
+
+    /* How many stations reported data in both 1897 and 2017? */
+    val reports1897 = parseReports(sc.textFile("/users/mlewis/workspaceF18/CSCI3395-F18/data/ghcn-daily/1897.csv"))
+    val pairs1897 = reports1897.map(r => r.id -> r)
+    val pairs2017 = reports2017.map(r => r.id -> r)
+    println("1897 and 2017 reporters: " + pairs2017.join(pairs1897).map(_._1).distinct().count())
+
+
 
 
 

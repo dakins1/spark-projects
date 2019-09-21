@@ -15,3 +15,9 @@ For each question, I have filtered out any reports that have a quality flag.
      According to Wikipedia, this is considered one of the coldest permanently inhabited regions on Earth.
 
     The lowest temperature it recorded in 2017 was -55.7 C, and the highest 33.5 C. This is relatively normal for a subartic climate.  
+
+
+### 3) Standard deviation for all US max and min temperatures?
+
+     StdDev max: 11.781782062650546 
+     StdDev min: 10.540712668387611
