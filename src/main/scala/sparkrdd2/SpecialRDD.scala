@@ -37,36 +37,50 @@ val conf = new SparkConf().setAppName("Temp Data").setMaster("local[*]")
    
     val reports2017 = parseReports(sc.textFile("/users/mlewis/workspaceF18/CSCI3395-F18/data/ghcn-daily/2017.csv"))
     // val reports1897 = parseReports(sc.textFile("/users/mlewis/workspaceF18/CSCI3395-F18/data/ghcn-daily/1897.csv"))
-
+    /*
     /* 1. Station with largest TMAX-TMIN in one day in 2017 */
-    // val reportMap = reports2017.map(r => r.id -> (r.mmdd -> r))
     val reportPairs = reports2017.map(r => (r.id -> r.mmdd) -> r)
     val tmaxs = reportPairs.filter(p => p._2.obType == "TMAX")
     val tmins = reportPairs.filter(p => p._2.obType == "TMIN")
     val tPairs = tmaxs.join(tmins)
-    val tDiffs = tPairs.map(p => p._1 -> (p._2._2.obValue - p._2._1.obValue))
-    //figure out which observation is first
+    val tDiffs = tPairs.map(p => p._1 -> (p._2._1.obValue - p._2._2.obValue))
     
     val maxReport2 = tDiffs.fold(tDiffs.first()){
       case ((key, diff), newPair) =>
         if (diff > newPair._2) (key, diff)
         else newPair
     }
-    println(maxReport2)
 
+    val d = tPairs.filter(r => r._1 == ("USC00502963" -> 213)).first()
+    // println("Max: " + d._2._1 + " min: " + d._2._2)
+    // println("Max difference in one day " + maxReport2)
 
-    // val maxReport = tDiffs
-
-    /*
-    val maxReport = reports2017.fold(reports2017.first){
-      (r1, r2) =>
-      if (r2.obType != "TMAX" || r2.obType != "TMIN") r1
-      else {
-        if ()
-      } 
+    /* 2. Station with biggest tmax - tmin difference over the whole year */
+    val reportsByStation = reports2017.map(r => r.id -> r)
+    val maxReports = reportsByStation.filter(r => r._2.obType == "TMAX")
+    val minReports = reportsByStation.filter(r => r._2.obType == "TMIN")
+    val dummyMax = ReportRow("", 0, 0, "", scala.Int.MinValue, "")
+    val maxMaxReports = maxReports.foldByKey(dummyMax){
+      (rep, newRep) =>
+        if (rep.obValue > newRep.obValue) rep
+        else newRep
     }
+    val dummyMin = ReportRow("", 0, 0, "", scala.Int.MaxValue, "")
+    val minMinReports = minReports.foldByKey(dummyMin) {
+      (rep, newRep) =>
+      if (newRep.obValue > rep.obValue) rep
+      else newRep
+    }
+    val joinedReps = maxMaxReports.join(minMinReports) 
+    val yearDiffs = joinedReps.map{case (k, v) => k -> (v._1.obValue - v._2.obValue)}
+    val maxYearDiff = yearDiffs.fold(yearDiffs.first())((old, nw) => if (old._2 > nw._2) old else nw)
+    println("Max diff over year: " + maxYearDiff)
+    println(joinedReps.filter(r => r._1 == "RSM00024585").first())
     */
 
-  sc.stop()
+
+
+
+    sc.stop()
 }
 }
