@@ -28,20 +28,14 @@ For each question, I have filtered out any reports that have a quality flag.
 
 ### 5) Temperature variability with latitude
 
-    Looking only at TMAX, lat < 35 has 82.49, 35 < lat < 42 has 104.804, and 42 < lat has 122.506.
+    All stdevs were calculated with the DoubleRDD popStdev() function
 
-    Looking at TMAX+TMIN/2, lat < 35 has 79.487, 35 < lat < 42 has 96.662, and 42 < lat has 111.605
+    Looking only at TMAX, lat < 35 has 8.249, 35 < lat < 42 has 10.4804, and 42 < lat has 12.2506.
+
+    Looking at TMAX+TMIN/2, lat < 35 has 7.9487, 35 < lat < 42 has 9.6662, and 42 < lat has 11.1605
 
     The stdev based on average daily temperature suggests lower levels of variability for each region,
     
     but still shows similar results in how latitude can affect variability. 
 
-    These are very high stdevs, especially considering they are in degrees Celsius. I would attribute
-
-    this to the fact that latitude isn't the only factor for temperature. A good example of this
-
-    is how a coastal city like San Francisco is in the same group as a cold city like Denver. 
-
-    I don't know why an increase in latitude increases the stdev, though. I would suspect moving
-
-    further up North would normalize to colder weather. 
+     

@@ -83,14 +83,14 @@ val conf = new SparkConf().setAppName("Special RDD").setMaster("local[*]") //("s
     val maxYearDiff = yearDiffs.fold(yearDiffs.first())((old, nw) => if (old._2 > nw._2) old else nw)
     println("Max diff over year: " + maxYearDiff)
     println(joinedReps.filter(r => r._1 == "RSM00024585").first())
-
+    
     /* 3. Std. Dev. for all Tmax's for each station */
-    val usMaxs = reports2017.filter(r => r.id.take(2) == "US" && r.obType == "TMAX").map(_.obValue/10.0).collect().toSeq
+    val usMaxs = reports2017.filter(r => r.id.take(2) == "US" && r.obType == "TMAX").map(_.obValue/10.0)
     val stdDevMax = customML.BasicStats.stdev(usMaxs)
     val usMins = reports2017.filter(r => r.id.take(2) == "US" && r.obType == "TMIN").map(_.obValue/10.0).collect().toSeq
     val stdDevMin = customML.BasicStats.stdev(usMins)
     println("StdDev max: " + stdDevMax + " min: " + stdDevMin)
-
+    
     /* How many stations reported data in both 1897 and 2017? */
     // val reports1897 = parseReports(sc.textFile("/users/mlewis/workspaceF18/CSCI3395-F18/data/ghcn-daily/1897.csv"))
     val pairs1897 = reports1897.map(r => r.id).distinct
@@ -123,11 +123,11 @@ val conf = new SparkConf().setAppName("Special RDD").setMaster("local[*]") //("s
     //make all the pairs first, then later you can filter it all by the desired obType
 
     
-    // val tmaxsDoubs = latSeq.map(_.filter(p => p._2.obType == "TMAX").map(p => p._2.obValue.toDouble)).map(_.popStdev)
-    // tmaxsDoubs.foreach(println)
+    val tmaxsDoubs = latSeq.map(_.filter(p => p._2.obType == "TMAX").map(p => p._2.obValue.toDouble/10.0)).map(_.popStdev)
+    tmaxsDoubs.foreach(println)
     val tmins = latSeq.map(_.filter(p => p._2.obType == "TMIN").map(p => (p._2.id, p._2.mmdd) -> p._2))
     val tmaxs = latSeq.map(_.filter(p => p._2.obType == "TMAX").map(p => (p._2.id, p._2.mmdd) -> p._2))
-    val tMatches = tmins.zip(tmaxs).map(p => p._1.join(p._2).map(p1 => (p1._2._2.obValue + p1._2._1.obValue.toDouble)/2))
+    val tMatches = tmins.zip(tmaxs).map(p => p._1.join(p._2).map(p1 => ((p1._2._2.obValue + p1._2._1.obValue.toDouble)/2)/10))
     val taveDoubles = tMatches.map(_.popStdev())
     taveDoubles.foreach(println)
     // val taves = latSeq.map(_.filter(p => p._2.obType == "TMAX" || p._2.obType == "TMIN").map(p =>   )) //.map(p => p._2.obValue.toDouble)).map(_.popStdev)
