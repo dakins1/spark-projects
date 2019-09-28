@@ -83,7 +83,6 @@ val conf = new SparkConf().setAppName("Special RDD").setMaster("local[*]") //("s
     val maxYearDiff = yearDiffs.fold(yearDiffs.first())((old, nw) => if (old._2 > nw._2) old else nw)
     println("Max diff over year: " + maxYearDiff)
     println(joinedReps.filter(r => r._1 == "RSM00024585").first())
-    */
 
     /* 3. Std. Dev. for all Tmax's for each station */
     val usMaxs = reports2017.filter(r => r.id.take(2) == "US" && r.obType == "TMAX").map(_.obValue/10.0).collect().toSeq
@@ -97,6 +96,42 @@ val conf = new SparkConf().setAppName("Special RDD").setMaster("local[*]") //("s
     val pairs1897 = reports1897.map(r => r.id).distinct
     val pairs2017 = reports2017.map(r => r.id).distinct
     println("1897 and 2017 reporters: " + pairs2017.intersection(pairs1897).count()) //.map(_._1).distinct().count())
+    */
+
+    /* 5. Variability of temps with latitude */
+    val stationLines = sc.textFile("C:\\Users\\Dillon\\comp\\datasets\\sparkRDD\\ghcnd-stations.txt")
+    val stationData = stationLines
+      .map { line =>
+        StationRow(
+          line.slice(0,11),
+          line.slice(12,20).toDouble,
+          line.slice(21,30).toDouble,
+          line.slice(31,37).toDouble,
+          line.slice(38,40),
+          line.slice(41,71)
+        )
+      }.cache()
+    val stationPairs = stationData.map(s => s.id -> s)
+
+    val rPairs = reports2017.map(r => r.id -> r)
+    val sar = stationPairs.join(rPairs)
+    val latGroups = sar.map(p => p._2._1.lat -> p._2._2)
+    val lat35 = latGroups.filter(_._1 < 35)
+    val lat35and45 = latGroups.filter(p => 35 < p._1 && p._1 < 42)
+    val lat45 = latGroups.filter(_._1 > 45)
+    val latSeq = Seq(lat35, lat35and45, lat45)
+    //make all the pairs first, then later you can filter it all by the desired obType
+
+    
+    // val tmaxsDoubs = latSeq.map(_.filter(p => p._2.obType == "TMAX").map(p => p._2.obValue.toDouble)).map(_.popStdev)
+    // tmaxsDoubs.foreach(println)
+    val tmins = latSeq.map(_.filter(p => p._2.obType == "TMIN").map(p => (p._2.id, p._2.mmdd) -> p._2))
+    val tmaxs = latSeq.map(_.filter(p => p._2.obType == "TMAX").map(p => (p._2.id, p._2.mmdd) -> p._2))
+    val tMatches = tmins.zip(tmaxs).map(p => p._1.join(p._2).map(p1 => (p1._2._2.obValue + p1._2._1.obValue.toDouble)/2))
+    val taveDoubles = tMatches.map(_.popStdev())
+    taveDoubles.foreach(println)
+    // val taves = latSeq.map(_.filter(p => p._2.obType == "TMAX" || p._2.obType == "TMIN").map(p =>   )) //.map(p => p._2.obValue.toDouble)).map(_.popStdev)
+    
 
 
 
