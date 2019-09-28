@@ -17,7 +17,7 @@ case class ReportRow(id:String, year:Int, mmdd:Int, obType:String, obValue:Int, 
 object SpecialRDD  {
 
 def main(args:Array[String]):Unit = {    
-val conf = new SparkConf().setAppName("Special RDD").setMaster("spark://pandora00:7077")
+val conf = new SparkConf().setAppName("Special RDD").setMaster("local[*]") //("spark://pandora00:7077")
   val sc = new SparkContext(conf)
   
   sc.setLogLevel("WARN")
@@ -37,8 +37,13 @@ val conf = new SparkConf().setAppName("Special RDD").setMaster("spark://pandora0
       }.filter(r => r.qflag == "")
     }
    
-    val reports2017 = parseReports(sc.textFile("/users/mlewis/workspaceF18/CSCI3395-F18/data/ghcn-daily/2017.csv"))
+    // val reports2017 = parseReports(sc.textFile("/users/mlewis/workspaceF18/CSCI3395-F18/data/ghcn-daily/2017.csv"))
+    val reports2017 = parseReports(sc.textFile("C:\\Users\\Dillon\\comp\\datasets\\sparkRDD\\2017.csv"))
+    val reports1897 = parseReports(sc.textFile("C:\\Users\\Dillon\\comp\\datasets\\sparkRDD\\1897.csv"))
+
     // val reports1897 = parseReports(sc.textFile("/users/mlewis/workspaceF18/CSCI3395-F18/data/ghcn-daily/1897.csv"))
+    
+    
     /*
     /* 1. Station with largest TMAX-TMIN in one day in 2017 */
     val reportPairs = reports2017.map(r => (r.id -> r.mmdd) -> r)
@@ -88,10 +93,10 @@ val conf = new SparkConf().setAppName("Special RDD").setMaster("spark://pandora0
     println("StdDev max: " + stdDevMax + " min: " + stdDevMin)
 
     /* How many stations reported data in both 1897 and 2017? */
-    val reports1897 = parseReports(sc.textFile("/users/mlewis/workspaceF18/CSCI3395-F18/data/ghcn-daily/1897.csv"))
-    val pairs1897 = reports1897.map(r => r.id -> r)
-    val pairs2017 = reports2017.map(r => r.id -> r)
-    println("1897 and 2017 reporters: " + pairs2017.join(pairs1897).map(_._1).distinct().count())
+    // val reports1897 = parseReports(sc.textFile("/users/mlewis/workspaceF18/CSCI3395-F18/data/ghcn-daily/1897.csv"))
+    val pairs1897 = reports1897.map(r => r.id).distinct
+    val pairs2017 = reports2017.map(r => r.id).distinct
+    println("1897 and 2017 reporters: " + pairs2017.intersection(pairs1897).count()) //.map(_._1).distinct().count())
 
 
 
