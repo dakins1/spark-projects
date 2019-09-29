@@ -137,7 +137,7 @@ val conf = new SparkConf().setAppName("Special RDD").setMaster("local[*]") //("s
     SwingRenderer(hist, 800, 600)
     */
 
-
+      /*
     val cg = ColorGradient(100.0 -> RedARGB, 0.0 -> BlueARGB, 50.0 -> GreenARGB)
 
     println(cg(40))
@@ -160,9 +160,45 @@ val conf = new SparkConf().setAppName("Special RDD").setMaster("local[*]") //("s
       symbolWidth = 3, symbolHeight = 3, colors = cols), "2017 Temps", "Longitude", "Latitude")
     
     SwingRenderer(plot, 1000, 1000)
+    */
     
+    /* 7. Change of average land temperature */
+    //Avg. 1897 Temps
     
+    def calcAvgTemp(reports:RDD[ReportRow]):RDD[(String, (Double, Double))] = {
+        val reportPairs = reports.map(r => r.id -> r)
+        val tmins = reportPairs.filter(p => p._2.obType == "TMIN")
+        val tmaxs = reportPairs.filter(p => p._2.obType == "TMAX")
+        val tminAvgs = tmins.map(r => r._1 -> (r._2.obValue, 1)).reduceByKey{
+          case ((t1, c1), (t2, c2)) =>
+            (t1+t2, c1+c2)
+        }.map(p => p._1 -> (p._2._1 / p._2._2.toDouble))
+        val tmaxAvgs = tmaxs.map(r => r._1 -> (r._2.obValue, 1)).reduceByKey{
+          case ((t1, c1), (t2, c2)) =>
+            (t1+t2, c1+c2)
+        }.map(p => p._1 -> (p._2._1 / p._2._2.toDouble))
+        tminAvgs.join(tmaxAvgs)
 
+    }
+    //tmin is first 
+    val avgs1897 = calcAvgTemp(reports1897)
+    val avgs2017 = calcAvgTemp(reports2017)
+    val joined = avgs2017.join(avgs1897)
+    val tmindiff = joined.map(p => p._2._1._1-p._2._2._1)
+    val tmaxdiff = joined.map(p => p._2._1._2-p._2._2._2)
+    println("Avg tmin diff" + tmindiff.sum() / tmindiff.count())
+    println("Avg tmax diff" + tmaxdiff.sum() / tmaxdiff.count())
+
+    /*
+    val rPairs1897 = reports1897.map(r => r.id -> r)
+    val tmaxs1897 = rPairs1897.filter(r => r._2.obType == "TMAX").map(r => (r._1, r._2.mmdd) -> r._2)
+    val tmins1897 = rPairs1897.filter(r => r._2.obType == "TMIN").map(r => (r._1, r._2.mmdd) -> r._2)
+    val taves1897 = tmaxs1897.join(tmins1897).map(r => r._1._2 -> (r._2._1.obValue - r._2._2.obValue)/10.0)
+    val rPairs1897 = reports1897.map(r => r.id -> r)
+    val tmaxs1897 = rPairs1897.filter(r => r._2.obType == "TMAX").map(r => (r._1, r._2.mmdd) -> r._2)
+    val tmins1897 = rPairs1897.filter(r => r._2.obType == "TMIN").map(r => (r._1, r._2.mmdd) -> r._2)
+    val taves1897 = tmaxs1897.join(tmins1897).map(r => r._1._2 -> (r._2._1.obValue - r._2._2.obValue)/10.0)
+    */
 
     
 

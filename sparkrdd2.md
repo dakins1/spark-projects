@@ -48,3 +48,15 @@ For each question, I have filtered out any reports that have a quality flag.
 ### 6) Average high temps for 2017
 
 ![Plot](src/main/scala/sparkrdd2/realLatLon.PNG)
+
+### 7) Increase in temperature over time
+
+    a) For this question, I found the average TMIN and average TMAX for each station.
+
+        Then for each station I found the difference between its 2017 and 1897 averages.
+
+        Then I found the average difference across all stations. For TMAX reports,
+
+        there was an average increase of 1.251 degrees celsius. For TMIN reports,
+
+        there was an average increase of 0.875 degrees celsius.  
