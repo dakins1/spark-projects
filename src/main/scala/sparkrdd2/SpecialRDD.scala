@@ -113,6 +113,7 @@ val conf = new SparkConf().setAppName("Special RDD").setMaster("local[*]") //("s
       }.cache()
     val stationPairs = stationData.map(s => s.id -> s)
 
+    /*
     val rPairs = reports2017.map(r => r.id -> r).filter(p => p._1.take(2) == "US")
     val sar = stationPairs.join(rPairs)
     val latGroups = sar.map(p => p._2._1.lat -> p._2._2)
@@ -122,7 +123,6 @@ val conf = new SparkConf().setAppName("Special RDD").setMaster("local[*]") //("s
     val latSeq = Seq(lat35, lat35and45, lat45)
     //make all the pairs first, then later you can filter it all by the desired obType
 
-    /*
     val tmaxsDoubs = latSeq.map(_.filter(p => p._2.obType == "TMAX").map(p => p._2.obValue.toDouble)).map(_.popStdev)
     tmaxsDoubs.foreach(println)
     val tmins = latSeq.map(_.filter(p => p._2.obType == "TMIN").map(p => (p._2.id, p._2.mmdd) -> p._2))
@@ -130,14 +130,43 @@ val conf = new SparkConf().setAppName("Special RDD").setMaster("local[*]") //("s
     val tMatches = tmins.zip(tmaxs).map(p => p._1.join(p._2).map(p1 => ((p1._2._2.obValue + p1._2._1.obValue.toDouble)/2)))
     val taveDoubles = tMatches.map(_.popStdev()/10.0)
     taveDoubles.foreach(println)
-    */
 
     val bins = (-10.0 to 60.0 by 5.0).toArray
     val counts = latSeq(0).filter(p => p._2.obType == "TMAX").map(p => p._2.obValue.toDouble/10).histogram(bins, true) 
     val hist = Plot.histogramPlot(bins, counts, RedARGB, false)
     SwingRenderer(hist, 800, 600)
+    */
 
-    // val taves = latSeq.map(_.filter(p => p._2.obType == "TMAX" || p._2.obType == "TMIN").map(p =>   )) //.map(p => p._2.obValue.toDouble)).map(_.popStdev)
+
+    val cg = ColorGradient(100.0 -> RedARGB, 0.0 -> BlueARGB, 50.0 -> GreenARGB)
+
+    println(cg(40))
+    println(cg(51))
+    println(cg(101))
+    println("70: " + cg(70))
+
+    val tmax2017 = reports2017.filter(r => r.obType == "TMAX")
+    
+    val allSar = tmax2017.map(r => r.id -> r).join(stationPairs).map(p => p._1 -> (p._2._2.lon, p._2._2.lat))
+    val avgs = tmax2017.map(r => r.id -> (r.obValue, 1)).reduceByKey{
+      case ((t1, c1), (t2, c2)) =>
+        (t1+t2, c1+c2)
+    }.map(p => p._1 -> (p._2._1 / p._2._2.toDouble))
+    val allData = allSar.join(avgs).map(p => p._2)
+    val cols = allData.collect.map(t => cg(((t._2/10.0) * (9.0/5)) + 32)).toArray
+    
+    val plot = Plot.simple(
+      ScatterStyle(allData.map(_._1._1).collect().toArray.map(_.toDouble), allData.map(_._1._2).collect().toArray.map(_.toDouble), 
+      symbolWidth = 3, symbolHeight = 3, colors = cols), "2017 Temps", "Longitude", "Latitude")
+    
+    SwingRenderer(plot, 1000, 1000)
+    
+    
+
+
+    
+
+
     
 
 

@@ -43,3 +43,8 @@ For each question, I have filtered out any reports that have a quality flag.
     X-axis is degrees celsius. Y-axis number of reports.
 
 ![Histo](src/main/scala/sparkrdd2/histoHighTemps)
+
+
+### 6) Average high temps for 2017
+
+![Plot](src/main/scala/sparkrdd2/realLatLon)
