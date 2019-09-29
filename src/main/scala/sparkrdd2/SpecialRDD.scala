@@ -183,6 +183,46 @@ val conf = new SparkConf().setAppName("Special RDD").setMaster("local[*]") //("s
     //tmin is first 
     val avgs1897 = calcAvgTemp(reports1897)
     val avgs2017 = calcAvgTemp(reports2017)
+    val tminAvg97 = avgs1897.map(p => p._2._1).sum() / avgs1897.count()
+    val tmaxAvg97 = avgs1897.map(p => p._2._2).sum() / avgs1897.count()
+    val tminAvg17 = avgs2017.map(p => p._2._1).sum() / avgs2017.count()
+    val tmaxAvg17 = avgs2017.map(p => p._2._2).sum() / avgs2017.count()
+    println("1897 avg. min temperature: " + tminAvg97 + " max: " + tmaxAvg97 )
+    println("2017 avg. min temperature: " + tminAvg17 + " max: " + tmaxAvg17 )
+
+    val filter1 = reports1897.filter(r => r.obType == "TMIN")
+    val tminAvg97_2 = filter1.map(r => r.obValue).sum() / filter1.count()
+    val filter2 = reports1897.filter(r => r.obType == "TMAX")
+    val tmaxAvg97_2 = filter2.map(r => r.obValue).sum() / filter2.count()
+
+    val filter3 = reports2017.filter(r => r.obType == "TMIN")
+    val tminAvg17_2 = filter3.map(r => r.obValue).sum() / filter3.count()
+    val filter4 = reports2017.filter(r => r.obType == "TMAX")
+    val tmaxAvg17_2 = filter4.map(r => r.obValue).sum() / filter4.count()
+
+    println("Use this one below")
+    println("1897 avg. min temperature: " + tminAvg97_2 + " max: " + tmaxAvg97_2 )
+    println("2017 avg. min temperature: " + tminAvg17_2 + " max: " + tmaxAvg17_2 )
+    println("divide by 10")
+
+    println("Only 1897 and 2017 reporters")
+    val both = reports1897.map(_.id).intersection(reports2017.map(_.id)).collect().toSet
+    val filter5 = reports1897.filter(r => r.obType == "TMIN" && both.contains(r.id))
+    val tminAvg97_3 = filter5.map(r => r.obValue).sum() / filter5.count()
+    val filter6 = reports1897.filter(r => r.obType == "TMAX" && both.contains(r.id))
+    val tmaxAvg97_3 = filter6.map(r => r.obValue).sum() / filter6.count()
+
+    val filter7 = reports2017.filter(r => r.obType == "TMIN" && both.contains(r.id))
+    val tminAvg17_3 = filter7.map(r => r.obValue).sum() / filter7.count()
+    val filter8 = reports2017.filter(r => r.obType == "TMAX"&& both.contains(r.id))
+    val tmaxAvg17_3 = filter8.map(r => r.obValue).sum() / filter8.count()
+    println("1897 avg. min temperature: " + tminAvg97_3 + " max: " + tmaxAvg97_3 )
+    println("2017 avg. min temperature: " + tminAvg17_3 + " max: " + tmaxAvg17_3 )
+    println("divide by 10")
+
+
+
+
     val joined = avgs2017.join(avgs1897)
     val tmindiff = joined.map(p => p._2._1._1-p._2._2._1)
     val tmaxdiff = joined.map(p => p._2._1._2-p._2._2._2)

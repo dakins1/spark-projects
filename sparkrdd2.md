@@ -51,12 +51,18 @@ For each question, I have filtered out any reports that have a quality flag.
 
 ### 7) Increase in temperature over time
 
-    a) For this question, I found the average TMIN and average TMAX for each station.
+    a) The average TMIN value across all stations in 1897 was 4.55 degrees celsius.
 
-        Then for each station I found the difference between its 2017 and 1897 averages.
+    The average TMAX was 17.14. For 2017, the average TMIN was 5.71, and the average
 
-        Then I found the average difference across all stations. For TMAX reports,
+    TMAX was 17.07. This does not show much of an increase. 
 
-        there was an average increase of 1.251 degrees celsius. For TMIN reports,
+    b) When looking only at stations that reported in both 1897 and 2017:
 
-        there was an average increase of 0.875 degrees celsius.  
+    The average TMIN for 1897 was 4.537 degrees celsius, average TMAX 17.603.
+
+    The average TMIN for 2017 was 6.273, and average TMAX 18.477. This shows
+
+    a more significant increase than question (a) does. I like this answer more
+
+    since it is not influenced by the addition of new stations between 1897 and 2017.  
