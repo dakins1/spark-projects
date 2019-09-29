@@ -23,7 +23,7 @@ val conf = new SparkConf().setAppName("Special RDD").setMaster("spark://pandora0
   sc.setLogLevel("WARN")
   
     def parseReports(lines:RDD[String]): RDD[ReportRow] = {
-      lines 
+      val x = lines 
       .map { line =>
         val p = line.split(",")
         ReportRow(
@@ -35,13 +35,40 @@ val conf = new SparkConf().setAppName("Special RDD").setMaster("spark://pandora0
           p(5)
         )
       }.filter(r => r.qflag == "")
-    }
+     
+      // x.foreach(r => println(r))
+      x
+  }
+
+  def parseBadReports(lines:RDD[String]): RDD[ReportRow] = {
+    val x = lines 
+    .map { line =>
+      val p = line.split(",")
+      try {
+      Some(ReportRow(
+        p(0),
+        p(1).take(4).toInt,
+        p(1).takeRight(4).toInt,
+        p(2), 
+        p(3).toInt,
+        p(5)
+      ))
+      } catch {
+        case e:NumberFormatException => {
+          println(p)
+          None
+        }
+      }
+    }.filter(r => r != None).map(_.get).filter(r => r.qflag == "")
+    x
+  }
+    //}
    
-    val reports2017 = parseReports(sc.textFile("/users/mlewis/workspaceF18/CSCI3395-F18/data/ghcn-daily/2017.csv"))
+    // val reports2017 = parseReports(sc.textFile("/users/mlewis/workspaceF18/CSCI3395-F18/data/ghcn-daily/2017.csv"))
     // val reports2017 = parseReports(sc.textFile("C:\\Users\\Dillon\\comp\\datasets\\sparkRDD\\2017.csv"))
     // val reports1897 = parseReports(sc.textFile("C:\\Users\\Dillon\\comp\\datasets\\sparkRDD\\1897.csv"))
 
-    val reports1897 = parseReports(sc.textFile("/users/mlewis/workspaceF18/CSCI3395-F18/data/ghcn-daily/1897.csv"))
+    // val reports1897 = parseReports(sc.textFile("/users/mlewis/workspaceF18/CSCI3395-F18/data/ghcn-daily/1897.csv"))
     
     
     /*
@@ -249,10 +276,11 @@ val conf = new SparkConf().setAppName("Special RDD").setMaster("spark://pandora0
     }
     
     
-    val datas = for (i <- 1767 to 2017 by 10) yield (i -> parseReports(sc.textFile("/data/BigData/ghcn-daily/"+i+".csv")))
+    val datas = for (i <- 1897 to 2017 by 10) yield (i -> parseBadReports(sc.textFile("/data/BigData/ghcn-daily/"+i+".csv")))//.map(r => r.year -> r)
+    println("All done parsing")
     // 7c plot, tmins
+    /*
     val tminAvgs = datas.map(r => r._1 -> getAvgForYear(r._2)._1)
-    val x = tminAvgs.map(_._1)
     val minScatter = ScatterStyle(tminAvgs.map(_._1).toArray.map(_.toDouble), tminAvgs.map(_._2).toArray.map(_.toDouble), 
       symbolWidth = 8, symbolHeight = 8, colors = BlueARGB)
     val tmaxAvgs = datas.map(r => r._1 -> getAvgForYear(r._2)._2)
@@ -260,10 +288,39 @@ val conf = new SparkConf().setAppName("Special RDD").setMaster("spark://pandora0
       symbolWidth = 8, symbolHeight = 8, colors = GreenARGB)
 
     val tPlot = Plot.stacked(Seq(minScatter, maxScatter), "TMIN is blue, TMAX is green", "Year", "Degrees Celsius")
+    */
 
-    SwingRenderer(tPlot, 1000, 1000)
 
+    // val allReporters = datas.foldLeft(Set[String]())((s, d) => s ++ d._2.map(_.id).collect().toSet)
     
+    // val allReporters = datas.redu
+    // val datas2 = datas.map(p => p._1 -> p._2.filter(r => allReporters.contains(r.id)))
+    val ids = datas.map(r => r._2.map(_.id)).reduce((x, y) => y.intersection(x)).collect().toSet
+    // val ids = datas.map(r => r._2.map(_.id)).reduceLeft((x,y) => x.intersection(y)).collect().toSet
+    // println(ids.size)
+
+    // var ids1 = datas(0)._2.map(_.id)
+    // for (i <- datas) ids1 = ids1.intersection(i._2.map(_.id))
+    // val ids = ids1.collect().toSet
+
+    println("IDs finished")
+    val datas2 = datas.map(p => p._1 -> p._2.filter(r => ids.contains(r.id)))
+    //val datas2 = datas
+    println("Data filtered")
+    val tminAvgs2 = datas2.map(r => r._1 -> getAvgForYear(r._2)._1)
+    println("tminAvgs2 finished")
+    val minScatter2 = ScatterStyle(tminAvgs2.map(_._1).toArray.map(_.toDouble), tminAvgs2.map(_._2).toArray.map(_.toDouble), 
+      symbolWidth = 8, symbolHeight = 8, colors = BlueARGB)
+    println("minScatter finished")
+    val tmaxAvgs2 = datas2.map(r => r._1 -> getAvgForYear(r._2)._2)
+      println("tmaxAvgs finished")
+    val maxScatter2 = ScatterStyle(tmaxAvgs2.map(_._1).toArray.map(_.toDouble), tmaxAvgs2.map(_._2).toArray.map(_.toDouble), 
+      symbolWidth = 8, symbolHeight = 8, colors = GreenARGB)
+    println("maxScatter finished")
+    val tPlot2 = Plot.stacked(Seq(minScatter2, maxScatter2), "TMIN is blue, TMAX is green", "Year", "Degrees Celsius")
+    println("plot mkaer finished")
+
+    SwingRenderer(tPlot2, 800, 800, true)
 
 
     
