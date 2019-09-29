@@ -40,4 +40,4 @@ For each question, I have filtered out any reports that have a quality flag.
 
     plausible. 
 
-    ![histo](scr/main/scala/sparkrdd2/histoHighTemps.png)
+    ![histo](src/main/scala/sparkrdd2/histoHighTemps.png)
