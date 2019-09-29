@@ -113,7 +113,7 @@ val conf = new SparkConf().setAppName("Special RDD").setMaster("local[*]") //("s
       }.cache()
     val stationPairs = stationData.map(s => s.id -> s)
 
-    val rPairs = reports2017.map(r => r.id -> r)
+    val rPairs = reports2017.map(r => r.id -> r).filter(p => p._1.take(2) == "US")
     val sar = stationPairs.join(rPairs)
     val latGroups = sar.map(p => p._2._1.lat -> p._2._2)
     val lat35 = latGroups.filter(_._1 < 35)
@@ -123,12 +123,12 @@ val conf = new SparkConf().setAppName("Special RDD").setMaster("local[*]") //("s
     //make all the pairs first, then later you can filter it all by the desired obType
 
     
-    val tmaxsDoubs = latSeq.map(_.filter(p => p._2.obType == "TMAX").map(p => p._2.obValue.toDouble/10.0)).map(_.popStdev)
+    val tmaxsDoubs = latSeq.map(_.filter(p => p._2.obType == "TMAX").map(p => p._2.obValue.toDouble)).map(_.popStdev)
     tmaxsDoubs.foreach(println)
     val tmins = latSeq.map(_.filter(p => p._2.obType == "TMIN").map(p => (p._2.id, p._2.mmdd) -> p._2))
     val tmaxs = latSeq.map(_.filter(p => p._2.obType == "TMAX").map(p => (p._2.id, p._2.mmdd) -> p._2))
-    val tMatches = tmins.zip(tmaxs).map(p => p._1.join(p._2).map(p1 => ((p1._2._2.obValue + p1._2._1.obValue.toDouble)/2)/10))
-    val taveDoubles = tMatches.map(_.popStdev())
+    val tMatches = tmins.zip(tmaxs).map(p => p._1.join(p._2).map(p1 => ((p1._2._2.obValue + p1._2._1.obValue.toDouble)/2)))
+    val taveDoubles = tMatches.map(_.popStdev()/10.0)
     taveDoubles.foreach(println)
     // val taves = latSeq.map(_.filter(p => p._2.obType == "TMAX" || p._2.obType == "TMIN").map(p =>   )) //.map(p => p._2.obValue.toDouble)).map(_.popStdev)
     

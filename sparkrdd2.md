@@ -30,12 +30,12 @@ For each question, I have filtered out any reports that have a quality flag.
 
     All stdevs were calculated with the DoubleRDD popStdev() function
 
-    Looking only at TMAX, lat < 35 has 8.249, 35 < lat < 42 has 10.4804, and 42 < lat has 12.2506.
+    Looking only at TMAX, lat < 35 has 7.738, 35 < lat < 42 has 10.989, and 42 < lat has 12.643.
 
-    Looking at TMAX+TMIN/2, lat < 35 has 7.9487, 35 < lat < 42 has 9.6662, and 42 < lat has 11.1605
+    Looking at TMAX+TMIN/2, lat < 35 has 7.638, 35 < lat < 42 has 9.664, and 42 < lat has 11.346
 
     The stdev based on average daily temperature suggests lower levels of variability for each region,
     
-    but still shows similar results in how latitude can affect variability. 
+    but still shows similar results in how latitude can affect variability. All these numbers seem very
 
-     
+    plausible. 
