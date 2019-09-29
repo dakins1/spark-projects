@@ -122,7 +122,7 @@ val conf = new SparkConf().setAppName("Special RDD").setMaster("local[*]") //("s
     val latSeq = Seq(lat35, lat35and45, lat45)
     //make all the pairs first, then later you can filter it all by the desired obType
 
-    
+    /*
     val tmaxsDoubs = latSeq.map(_.filter(p => p._2.obType == "TMAX").map(p => p._2.obValue.toDouble)).map(_.popStdev)
     tmaxsDoubs.foreach(println)
     val tmins = latSeq.map(_.filter(p => p._2.obType == "TMIN").map(p => (p._2.id, p._2.mmdd) -> p._2))
@@ -130,6 +130,13 @@ val conf = new SparkConf().setAppName("Special RDD").setMaster("local[*]") //("s
     val tMatches = tmins.zip(tmaxs).map(p => p._1.join(p._2).map(p1 => ((p1._2._2.obValue + p1._2._1.obValue.toDouble)/2)))
     val taveDoubles = tMatches.map(_.popStdev()/10.0)
     taveDoubles.foreach(println)
+    */
+
+    val bins = (-10.0 to 60.0 by 5.0).toArray
+    val counts = latSeq(0).filter(p => p._2.obType == "TMAX").map(p => p._2.obValue.toDouble/10).histogram(bins, true) 
+    val hist = Plot.histogramPlot(bins, counts, RedARGB, false)
+    SwingRenderer(hist, 800, 600)
+
     // val taves = latSeq.map(_.filter(p => p._2.obType == "TMAX" || p._2.obType == "TMIN").map(p =>   )) //.map(p => p._2.obValue.toDouble)).map(_.popStdev)
     
 

@@ -39,3 +39,5 @@ For each question, I have filtered out any reports that have a quality flag.
     but still shows similar results in how latitude can affect variability. All these numbers seem very
 
     plausible. 
+
+    ![histo](scr/main/scala/sparkrdd2/histoHighTemps.png)
