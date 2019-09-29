@@ -66,3 +66,7 @@ For each question, I have filtered out any reports that have a quality flag.
     a more significant increase than question (a) does. I like this answer more
 
     since it is not influenced by the addition of new stations between 1897 and 2017.  
+
+    c)
+
+![Yrly](src/main/scala/sparkrdd2/actualYearly.png)

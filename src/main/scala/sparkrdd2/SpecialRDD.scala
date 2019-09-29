@@ -17,7 +17,7 @@ case class ReportRow(id:String, year:Int, mmdd:Int, obType:String, obValue:Int, 
 object SpecialRDD  {
 
 def main(args:Array[String]):Unit = {    
-val conf = new SparkConf().setAppName("Special RDD").setMaster("local[*]") //("spark://pandora00:7077")
+val conf = new SparkConf().setAppName("Special RDD").setMaster("spark://pandora00:7077")
   val sc = new SparkContext(conf)
   
   sc.setLogLevel("WARN")
@@ -37,11 +37,11 @@ val conf = new SparkConf().setAppName("Special RDD").setMaster("local[*]") //("s
       }.filter(r => r.qflag == "")
     }
    
-    // val reports2017 = parseReports(sc.textFile("/users/mlewis/workspaceF18/CSCI3395-F18/data/ghcn-daily/2017.csv"))
-    val reports2017 = parseReports(sc.textFile("C:\\Users\\Dillon\\comp\\datasets\\sparkRDD\\2017.csv"))
-    val reports1897 = parseReports(sc.textFile("C:\\Users\\Dillon\\comp\\datasets\\sparkRDD\\1897.csv"))
+    val reports2017 = parseReports(sc.textFile("/users/mlewis/workspaceF18/CSCI3395-F18/data/ghcn-daily/2017.csv"))
+    // val reports2017 = parseReports(sc.textFile("C:\\Users\\Dillon\\comp\\datasets\\sparkRDD\\2017.csv"))
+    // val reports1897 = parseReports(sc.textFile("C:\\Users\\Dillon\\comp\\datasets\\sparkRDD\\1897.csv"))
 
-    // val reports1897 = parseReports(sc.textFile("/users/mlewis/workspaceF18/CSCI3395-F18/data/ghcn-daily/1897.csv"))
+    val reports1897 = parseReports(sc.textFile("/users/mlewis/workspaceF18/CSCI3395-F18/data/ghcn-daily/1897.csv"))
     
     
     /*
@@ -99,6 +99,7 @@ val conf = new SparkConf().setAppName("Special RDD").setMaster("local[*]") //("s
     */
 
     /* 5. Variability of temps with latitude */
+    /*
     val stationLines = sc.textFile("C:\\Users\\Dillon\\comp\\datasets\\sparkRDD\\ghcnd-stations.txt")
     val stationData = stationLines
       .map { line =>
@@ -109,14 +110,22 @@ val conf = new SparkConf().setAppName("Special RDD").setMaster("local[*]") //("s
           line.slice(31,37).toDouble,
           line.slice(38,40),
           line.slice(41,71)
+    val minScatter = ScatterStyle(tminAvgs.map(_._1).toArray, tminAvgs.map(_._2).collect, symbolWidth = 3, symbolHeight = 3, colors = BlueARGB)
         )
+    val minScatter = ScatterStyle(tminAvgs.map(_._1).toArray, tminAvgs.map(_._2).collect, symbolWidth = 3, symbolHeight = 3, colors = BlueARGB)
       }.cache()
+    val minScatter = ScatterStyle(tminAvgs.map(_._1).toArray, tminAvgs.map(_._2).collect, symbolWidth = 3, symbolHeight = 3, colors = BlueARGB)
     val stationPairs = stationData.map(s => s.id -> s)
+    */
 
     /*
+    val minScatter = ScatterStyle(tminAvgs.map(_._1).toArray, tminAvgs.map(_._2).collect, symbolWidth = 3, symbolHeight = 3, colors = BlueARGB)
     val rPairs = reports2017.map(r => r.id -> r).filter(p => p._1.take(2) == "US")
+    val minScatter = ScatterStyle(tminAvgs.map(_._1).toArray, tminAvgs.map(_._2).collect, symbolWidth = 3, symbolHeight = 3, colors = BlueARGB)
     val sar = stationPairs.join(rPairs)
+    val minScatter = ScatterStyle(tminAvgs.map(_._1).toArray, tminAvgs.map(_._2).collect, symbolWidth = 3, symbolHeight = 3, colors = BlueARGB)
     val latGroups = sar.map(p => p._2._1.lat -> p._2._2)
+    val minScatter = ScatterStyle(tminAvgs.map(_._1).toArray, tminAvgs.map(_._2).collect, symbolWidth = 3, symbolHeight = 3, colors = BlueARGB)
     val lat35 = latGroups.filter(_._1 < 35)
     val lat35and45 = latGroups.filter(p => 35 < p._1 && p._1 < 42)
     val lat45 = latGroups.filter(_._1 > 45)
@@ -181,6 +190,7 @@ val conf = new SparkConf().setAppName("Special RDD").setMaster("local[*]") //("s
 
     }
     //tmin is first 
+    /*
     val avgs1897 = calcAvgTemp(reports1897)
     val avgs2017 = calcAvgTemp(reports2017)
     val tminAvg97 = avgs1897.map(p => p._2._1).sum() / avgs1897.count()
@@ -228,17 +238,30 @@ val conf = new SparkConf().setAppName("Special RDD").setMaster("local[*]") //("s
     val tmaxdiff = joined.map(p => p._2._1._2-p._2._2._2)
     println("Avg tmin diff" + tmindiff.sum() / tmindiff.count())
     println("Avg tmax diff" + tmaxdiff.sum() / tmaxdiff.count())
-
-    /*
-    val rPairs1897 = reports1897.map(r => r.id -> r)
-    val tmaxs1897 = rPairs1897.filter(r => r._2.obType == "TMAX").map(r => (r._1, r._2.mmdd) -> r._2)
-    val tmins1897 = rPairs1897.filter(r => r._2.obType == "TMIN").map(r => (r._1, r._2.mmdd) -> r._2)
-    val taves1897 = tmaxs1897.join(tmins1897).map(r => r._1._2 -> (r._2._1.obValue - r._2._2.obValue)/10.0)
-    val rPairs1897 = reports1897.map(r => r.id -> r)
-    val tmaxs1897 = rPairs1897.filter(r => r._2.obType == "TMAX").map(r => (r._1, r._2.mmdd) -> r._2)
-    val tmins1897 = rPairs1897.filter(r => r._2.obType == "TMIN").map(r => (r._1, r._2.mmdd) -> r._2)
-    val taves1897 = tmaxs1897.join(tmins1897).map(r => r._1._2 -> (r._2._1.obValue - r._2._2.obValue)/10.0)
     */
+
+    def getAvgForYear(rdd:RDD[ReportRow]):(Double, Double) = { //first is tmin, second is tmax
+      val filter1 = rdd.filter(r => r.obType == "TMIN")
+      val tminAvg = filter1.map(r => r.obValue).sum() / filter1.count()
+      val filter2 = rdd.filter(r => r.obType == "TMAX")
+      val tmaxAvg = filter2.map(r => r.obValue).sum() / filter2.count()
+      (tminAvg/10.0, tmaxAvg/10.0)
+    }
+    
+    
+    val datas = for (i <- 1767 to 2017 by 10) yield (i -> parseReports(sc.textFile("/data/BigData/ghcn-daily/"+i+".csv")))
+    // 7c plot, tmins
+    val tminAvgs = datas.map(r => r._1 -> getAvgForYear(r._2)._1)
+    val x = tminAvgs.map(_._1)
+    val minScatter = ScatterStyle(tminAvgs.map(_._1).toArray.map(_.toDouble), tminAvgs.map(_._2).toArray.map(_.toDouble), 
+      symbolWidth = 8, symbolHeight = 8, colors = BlueARGB)
+    val tmaxAvgs = datas.map(r => r._1 -> getAvgForYear(r._2)._2)
+    val maxScatter = ScatterStyle(tmaxAvgs.map(_._1).toArray.map(_.toDouble), tmaxAvgs.map(_._2).toArray.map(_.toDouble), 
+      symbolWidth = 8, symbolHeight = 8, colors = GreenARGB)
+
+    val tPlot = Plot.stacked(Seq(minScatter, maxScatter), "TMIN is blue, TMAX is green", "Year", "Degrees Celsius")
+
+    SwingRenderer(tPlot, 1000, 1000)
 
     
 
