@@ -42,7 +42,9 @@ For each question, I have filtered out any reports that have a quality flag.
 
     X-axis is degrees celsius. Y-axis number of reports.
 
-![Histo](src/main/scala/sparkrdd2/histoHighTemps)
+![Histo](src/main/scala/sparkrdd2/35.png)
+![Histo1](src/main/scala/sparkrdd2/3542.png)
+![Histo2](src/main/scala/sparkrdd2/42.png)
 
 
 ### 6) Average high temps for 2017
@@ -129,4 +131,12 @@ For each question, I have filtered out any reports that have a quality flag.
 
      thus the data gets biased towards countries not involved. To look further into this, I would
 
-     analyze the years surrounding WWI to see if a trend can be noticed. 
+     analyze the years surrounding WWI to see if a trend can be noticed. If WWI really was the cause for
+
+     the dip, I would have to see how the at-war countries are affecting the data. If they aren't reporting
+
+     as often as normal, I would have to limit the data from other countries to level out the weight of 
+
+     each station. If they were reporting more than normal, I would limit the data from uninvolved countries.
+
+     Hopefully this would equalize the data so it is not biased towards a country, region, or climate. 
