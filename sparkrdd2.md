@@ -74,3 +74,59 @@ For each question, I have filtered out any reports that have a quality flag.
      d)
 
 ![Const](src/main/scala/sparkrdd2/yearlyConstant.png)
+
+     Consistent with the results from (a) and (b), when only looking at stations that
+
+     reported in both 1897 and 2017, we see a more significant increase in temperature
+
+     across time for both TMIN and TMAX. 
+
+### 8) Analysis of approach
+
+     Approach (a) has the merit of accounting for more data in breadth. 
+
+     It is very possible that in 1897 not every part of the world had a station tracking
+
+     its weather, thus picking up new stations as they are created helps form a better
+
+     representation of the globe. This might, however, also pollute the data. If the world
+
+     is actually getting hotter over time, but a large enough amount of stations are added 
+
+     in colder regions, then those cold stations might lower the average temperature and 
+     
+     conceal the rise in actual temperature. 
+
+     Approach (b) is the opposite. Since it only looks at stations reporting from 1897-2017,
+
+     we know that the averages aren't affected by a biased addition of stations in a certain
+     
+     climate. This also prevents having a true representation of the globe, since certain regions
+
+     may not have had, and probably did not have, a station in 1897.
+
+     In both approaches, there is still a general flaw in proper representation throughout the globe.
+
+     The US probably has a lot more reporting stations than a third-world country might, so the averages
+
+     are unfairly biased towards climates in the Northern Hemisphere. A better approached would have been 
+
+     to use the stations latitude and longitude to fairly represent all parts of the globe. To be extra
+
+     thorough, we should split the stations up by region for one analysis and by climate types for another.
+
+     The trick would be to prevent as much bias as possible without trimming off too much data. 
+
+### 9) Any flaws in the data?
+
+     When looking at the TMIN values of both plots for question 7, the year 1917 is oddly cold.
+
+     Not only is it the coldest year on both plots, but it just seems out of place with the rest
+     
+     of the data. I wonder if World War I had anything to do with this, seeing that it was from
+
+     in 1914 to 1918. Perhaps the war prevented weather stations from reporting as consistently,
+
+     thus the data gets biased towards countries not involved. To look further into this, I would
+
+     analyze the years surrounding WWI to see if a trend can be noticed. 
