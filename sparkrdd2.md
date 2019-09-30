@@ -40,11 +40,19 @@ For each question, I have filtered out any reports that have a quality flag.
 
     plausible. 
 
-    X-axis is degrees celsius. Y-axis number of reports.
-
 ![Histo](src/main/scala/sparkrdd2/35.png)
 ![Histo1](src/main/scala/sparkrdd2/3542.png)
 ![Histo2](src/main/scala/sparkrdd2/42.png)
+
+     These historgrams seem to match what the stdevs were. The lat < 35 shows low variance, as the breadth
+
+     is not too wide. With the other two histograms, though, an increase in latitude shows a wider breadth,
+
+     thus more variance. After seeing these charts, and seeing the significant difference between the <35 
+     
+     histogram and the >42 histogram, I am convinced that variability of land temperature changes with 
+
+     latitude.  
 
 
 ### 6) Average high temps for 2017

@@ -159,18 +159,19 @@ val conf = new SparkConf().setAppName("Special RDD").setMaster("local[*]") //("s
     val taveDoubles = tMatches.map(_.popStdev()/10.0)
     taveDoubles.foreach(println)
 
+    /*
     val bins = (-10.0 to 60.0 by 5.0).toArray
     val counts = latSeq(0).filter(p => p._2.obType == "TMAX").map(p => p._2.obValue.toDouble/10).histogram(bins, true) 
     val hist = Plot.histogramPlot(bins, counts, RedARGB, false, "Lat < 35", "Degrees Celsuis", "Number of Reports")
     SwingRenderer(hist, 800, 600)
-
-    val bins2 = (-10.0 to 60.0 by 5.0).toArray
-    val counts2 = latSeq(1).filter(p => p._2.obType == "TMAX").map(p => p._2.obValue.toDouble/10).histogram(bins, true) 
-    val hist2 = Plot.histogramPlot(bins, counts2, BlueARGB, false, "35 < Lat < 42", "Degrees Celsuis", "Number of Reports")
+      */
+    val bins2 = (-30.0 to 60.0 by 5.0).toArray
+    val counts2 = latSeq(1).filter(p => p._2.obType == "TMAX").map(p => p._2.obValue.toDouble/10).histogram(bins2, true) 
+    val hist2 = Plot.histogramPlot(bins2, counts2, BlueARGB, false, "35 < Lat < 42", "Degrees Celsuis", "Number of Reports")
     SwingRenderer(hist2, 800, 600)
-    val bins3 = (-10.0 to 60.0 by 5.0).toArray
-    val counts3 = latSeq(2).filter(p => p._2.obType == "TMAX").map(p => p._2.obValue.toDouble/10).histogram(bins, true) 
-    val hist3 = Plot.histogramPlot(bins, counts3, GreenARGB, false, "42 < Lat", "Degrees Celsuis", "Number of Reports")
+    val bins3 = (-40.0 to 60.0 by 5.0).toArray
+    val counts3 = latSeq(2).filter(p => p._2.obType == "TMAX").map(p => p._2.obValue.toDouble/10).histogram(bins3, true) 
+    val hist3 = Plot.histogramPlot(bins3, counts3, GreenARGB, false, "42 < Lat", "Degrees Celsuis", "Number of Reports")
     SwingRenderer(hist3, 800, 600)
       /*
     val cg = ColorGradient(100.0 -> RedARGB, 0.0 -> BlueARGB, 50.0 -> GreenARGB)
