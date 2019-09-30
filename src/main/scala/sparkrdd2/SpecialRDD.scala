@@ -279,7 +279,6 @@ val conf = new SparkConf().setAppName("Special RDD").setMaster("spark://pandora0
     val datas = for (i <- 1897 to 2017 by 10) yield (i -> parseBadReports(sc.textFile("/data/BigData/ghcn-daily/"+i+".csv")))//.map(r => r.year -> r)
     println("All done parsing")
     // 7c plot, tmins
-    /*
     val tminAvgs = datas.map(r => r._1 -> getAvgForYear(r._2)._1)
     val minScatter = ScatterStyle(tminAvgs.map(_._1).toArray.map(_.toDouble), tminAvgs.map(_._2).toArray.map(_.toDouble), 
       symbolWidth = 8, symbolHeight = 8, colors = BlueARGB)
@@ -288,8 +287,7 @@ val conf = new SparkConf().setAppName("Special RDD").setMaster("spark://pandora0
       symbolWidth = 8, symbolHeight = 8, colors = GreenARGB)
 
     val tPlot = Plot.stacked(Seq(minScatter, maxScatter), "TMIN is blue, TMAX is green", "Year", "Degrees Celsius")
-    */
-
+    SwingRenderer(tPlot, 800, 800)
 
     // val allReporters = datas.foldLeft(Set[String]())((s, d) => s ++ d._2.map(_.id).collect().toSet)
     
@@ -302,7 +300,7 @@ val conf = new SparkConf().setAppName("Special RDD").setMaster("spark://pandora0
     // var ids1 = datas(0)._2.map(_.id)
     // for (i <- datas) ids1 = ids1.intersection(i._2.map(_.id))
     // val ids = ids1.collect().toSet
-
+    /*
     println("IDs finished")
     val datas2 = datas.map(p => p._1 -> p._2.filter(r => ids.contains(r.id)))
     //val datas2 = datas
@@ -321,7 +319,7 @@ val conf = new SparkConf().setAppName("Special RDD").setMaster("spark://pandora0
     println("plot mkaer finished")
 
     SwingRenderer(tPlot2, 800, 800, true)
-
+    */
 
     
 

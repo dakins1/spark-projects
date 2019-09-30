@@ -69,4 +69,8 @@ For each question, I have filtered out any reports that have a quality flag.
 
     c)
 
-![Yrly](src/main/scala/sparkrdd2/actualYearly.png)
+![Yrly](src/main/scala/sparkrdd2/yearly1897.png)
+
+     d)
+
+![Const](src/main/scala/sparkrdd2/yearlyConstant.png)
