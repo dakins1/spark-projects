@@ -24,7 +24,7 @@ CSCI 1320 Section 5 from F16, 26 quizzes
 
 ### 7) Which course has the most quiz questions?
 
-CSCI 1321 Section 1 from F16 62 questions
+CSCI 1321 Section 1 from F16 65 questions
 
 ### 8) 
 
@@ -32,4 +32,18 @@ CSCI 1321 Section 1 from F16 62 questions
 
 9
 
-### 10) 
+### 10) Student with most correct questions
+
+Userid is 156, they got 126 questions right
+
+### 11) Most common spec_type
+
+From most common to least, 0, 2, 3
+
+### 12) Fraction of coding quizzes
+
+21 out of 55 quizzes have coding questions
+
+### 13) Average multiple choice
+
+Average 2.5227 questions per quiz
