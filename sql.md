@@ -46,4 +46,12 @@ From most common to least, 0, 2, 3
 
 ### 13) Average multiple choice
 
-Average 2.5227 questions per quiz
+Average 2.01 mc questions per quiz
+
+### 14) Avg. number coding questions per quiz
+
+    Avg. 0.8 questions per quiz
+
+### 15) Most attempts by a student
+
+    User 58, with 212 attempts on quiz 47
