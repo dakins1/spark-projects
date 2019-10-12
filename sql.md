@@ -26,15 +26,8 @@ CSCI 1320 Section 5 from F16, 26 quizzes
 
 CSCI 1321 Section 1 from F16 65 questions
 
-### 8) 
+### 8) Fraction of students that submitted function answer and got it right
 
-### 9) How many courses had a lambda question?
-
-9
-
-### 10) Student with most correct questions
-
-Userid is 156, they got 126 questions right
 
 ### 11) Most common spec_type
 
@@ -50,8 +43,8 @@ Average 2.01 mc questions per quiz
 
 ### 14) Avg. number coding questions per quiz
 
-    Avg. 0.8 questions per quiz
+Avg. 0.8 questions per quiz
 
 ### 15) Most attempts by a student
 
-    User 58, with 212 attempts on quiz 47
+User 58, with 212 attempts on quiz 47
