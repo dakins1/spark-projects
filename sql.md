@@ -30,6 +30,12 @@ CSCI 1321 Section 1 from F16 65 questions
 
 134 out of 162 students
 
+### 9) Courses given lambda type questions?
+
+9 courses.
+
+### 10) 
+
 ### 11) Most common spec_type
 
 From most common to least, 0, 2, 3
