@@ -36,6 +36,8 @@ CSCI 1321 Section 1 from F16 65 questions
 
 ### 10) 
 
+Userid is 156, they got 126 questions right
+
 ### 11) Most common spec_type
 
 From most common to least, 0, 2, 3
