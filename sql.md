@@ -28,6 +28,7 @@ CSCI 1321 Section 1 from F16 65 questions
 
 ### 8) Fraction of students that submitted function answer and got it right
 
+134 out of 162 students
 
 ### 11) Most common spec_type
 
