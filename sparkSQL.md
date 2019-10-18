@@ -39,3 +39,17 @@
 ## 5 Cont. of 4
 
 ### A. 
+
+Weighted average is 6.15 units of unemployment rate
+
+### B. 
+
+The BLS average is 6.2, suggesting my weighted average is more accurate than my plain average. This is makes sense since the
+
+weighted average accounts for the size of a population, e.g. a population of 10000 is not treated the same as a population of
+
+1 million. 
+
+### 6) Max unemployment rate in Texas with labor force > 10k
+
+54.1 units of unemployment rate (ouch). February, 1990, Rio Grande City

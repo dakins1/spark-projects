@@ -5,6 +5,8 @@ import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql.functions.avg
 import org.apache.spark.sql.functions.count
 import org.apache.spark.sql.functions.sqrt
+import org.apache.spark.sql.functions.max
+import org.apache.spark.sql.functions.desc
 import org.apache.spark.sql.types.DoubleType
 import org.apache.spark.sql.types.IntegerType
 import org.apache.spark.sql.types.StringType
@@ -83,18 +85,53 @@ object SparkSQL extends App {
 
     /* 5. Same as 4 */
     /* c. Labor force as weight average */
+    /*
     val labor2017 = dataNM.filter('year === 2017 && 'series_id.substr(19,2) === "06").select('series_id.substr(4,15).as("area_code"), 'period, 'value.as("labor"))
     val labor_counties = countiesNM.join(labor2017, "area_code")
     val laborWithRates = rates_counties.join(labor_counties, Seq("area_code", "period"))
-    // val weightSums = laborWithRates.join(countiesNM, "area_code").groupBy('period).sum("labor").show()
-    laborWithRates.show()
+    val laborByRatesSum = laborWithRates.select(('rate * 'labor).as("product")).groupBy().sum("product") 
+    val laborSum = laborWithRates.groupBy().sum("labor")
+    println(laborByRatesSum.first().getDouble(0) / laborSum.first().getDouble(0))
+    */
 
+    val labor2017 = dataNM.filter('year === 2017 && 'series_id.substr(19,2) === "06").select('series_id.substr(1,19).as("series_id"), 'period, 'value.as("labor"))
+    val labor_counties = countiesNM.join(labor2017).filter('series_id.substr(4,15) === 'area_code) //(labor2017, "area_code")
 
+    val rates1 = dataNM.filter('year === 2017 && 'series_id.substr(19, 2) === "03").select('series_id.substr(1,19).as("series_id"), 'period, 'value.as("rate"))
+    val rates_counties1 = countiesNM.join(rates1).filter('series_id.substr(4,15) === 'area_code)
 
-    val weightSums = labor2017.groupBy('period).sum("labor")
-    val values = rates.groupBy('period)
-    // val weightsWithVals = weightSums.
+    val laborWithRates = rates_counties1.join(labor_counties, Seq("series_id", "period"))
+    val laborByRatesSum = laborWithRates.select(('rate * 'labor).as("product")).groupBy().sum("product") 
+    val laborSum = laborWithRates.groupBy().sum("labor")
+    println("My avg " + laborByRatesSum.first().getDouble(0) / laborSum.first().getDouble(0))
+    val blsAvg = dataNM.filter('year === 2017 && 'series_id.substr(19,2) === "03" && 'period === "M13" && 'series_id.substr(4,15) === "ST3500000000000")
+    println("BLS avg")
+    blsAvg.show()
 
+    /* 6. What is the highest unemployment rate for a series with a labor force of at least 10,000 people in the state of Texas? When and where? */
+
+    val dataTX = spark.read.schema(dataSchema).
+    option("header", "true").
+    option("delimiter", "\t").
+    //csv("C:/Users/Dillon/comp/datasets/sparksql/la/la.data.51.Texas")
+    csv("/data/BigData/bls/la/la.data.51.Texas")
+
+    val series_labor10k = dataTX.filter('series_id.substr(19,2) === "06" && 'value >= 10000).select('series_id.substr(1,19).as("series_id"), 'period, 'year)
+    val series_unemployment = dataTX.filter('series_id.substr(19,2) === "03").select('series_id.substr(1,19).as("series_id"), 'period, 'year, 'value)
+    val joined2 = series_labor10k.join(series_unemployment, Seq("period", "year", "series_id"))
+    println(series_labor10k.count())
+    println(series_unemployment.count())
+    println(joined2.count())
+    val rw = joined2.orderBy(desc("value")).limit(1).first()
+    println(rw)
+    println(rw.getString(2).drop(3))
+    dataArea.filter('area_code === rw.getString(2).drop(3).dropRight(1)).show()
+    
+    // joined2.agg(max($"value")).show()
+    //TX has state code of 48
+    //make sure to join on series id (minus the ob code), month and year
+
+    //for number 7, filter everything less than number 6
 
     
 }
