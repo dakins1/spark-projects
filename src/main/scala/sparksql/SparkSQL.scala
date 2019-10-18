@@ -74,10 +74,27 @@ object SparkSQL extends App {
    
     /* 4. What was the average unemployment rate for New Mexico in 2017? Calculate this in three ways: */
     /* a. Averages of the months for the BLS series for the whole state. */
-    val data2017 = dataNM.filter('year === 2017 && 'series_id.substr(19, 2) === "03").groupBy('period).avg()
+    val data2017 = dataNM.filter('year === 2017 && 'series_id.substr(19, 2) === "03").groupBy('period).avg().orderBy('period)
     data2017.show()
 
     /* b. Simple average of all unemployment rates for counties in the state. */
+    val rates = dataNM.filter('year === 2017 && 'series_id.substr(19, 2) === "03").select('series_id.substr(4,15).as("area_code"), 'period, 'value.as("rate"))
+    val rates_counties = countiesNM.join(rates, "area_code")
+
+    /* 5. Same as 4 */
+    /* c. Labor force as weight average */
+    val labor2017 = dataNM.filter('year === 2017 && 'series_id.substr(19,2) === "06").select('series_id.substr(4,15).as("area_code"), 'period, 'value.as("labor"))
+    val labor_counties = countiesNM.join(labor2017, "area_code")
+    val laborWithRates = rates_counties.join(labor_counties, Seq("area_code", "period"))
+    // val weightSums = laborWithRates.join(countiesNM, "area_code").groupBy('period).sum("labor").show()
+    laborWithRates.show()
 
 
+
+    val weightSums = labor2017.groupBy('period).sum("labor")
+    val values = rates.groupBy('period)
+    // val weightsWithVals = weightSums.
+
+
+    
 }
