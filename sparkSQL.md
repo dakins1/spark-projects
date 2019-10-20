@@ -1,6 +1,6 @@
 ### 1) How many series does New Mexico have?
 
-264 series
+264 series (I am counting distinct series, not number of data inputs)
 
 ### 2) Max Unemployment Level
 
@@ -52,4 +52,19 @@ weighted average accounts for the size of a population, e.g. a population of 100
 
 ### 6) Max unemployment rate in Texas with labor force > 10k
 
-54.1 units of unemployment rate (ouch). February, 1990, Rio Grande City
+54.1 units of unemployment rate (ouch). February, 1990, Rio Grande City, TX
+
+### 7) Max unemployment rate anywhere with labor force > 10k
+
+58.9 units of unemployment rate (ouch again), July, 2013, San Luis City, AZ
+
+### 8) What state has the most distinct data series?
+
+For this, I consider series_id with different measure codes as different series, e.g. 
+
+LASBS060000000000003 is different from LASBS060000000000006
+
+Maine, with 2296 units of distinct series
+
+### 9)
+

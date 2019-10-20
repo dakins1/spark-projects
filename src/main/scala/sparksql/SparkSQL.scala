@@ -7,6 +7,7 @@ import org.apache.spark.sql.functions.count
 import org.apache.spark.sql.functions.sqrt
 import org.apache.spark.sql.functions.max
 import org.apache.spark.sql.functions.desc
+import org.apache.spark.sql.functions._
 import org.apache.spark.sql.types.DoubleType
 import org.apache.spark.sql.types.IntegerType
 import org.apache.spark.sql.types.StringType
@@ -22,7 +23,7 @@ import org.apache.parquet.format.IntType
 object SparkSQL extends App {
     val sparkConf = new SparkConf().setAppName("Test")
     sparkConf.set("spark.sql.crossJoin.enabled", "true")
-    val spark = SparkSession.builder().config(sparkConf).master("local[*]").appName("Temp Data").getOrCreate()
+    val spark = SparkSession.builder().config(sparkConf).master("spark://pandora00:7077").appName("Temp Data").getOrCreate()
     import spark.implicits._
   
     spark.sparkContext.setLogLevel("WARN")
@@ -126,12 +127,45 @@ object SparkSQL extends App {
     println(rw)
     println(rw.getString(2).drop(3))
     dataArea.filter('area_code === rw.getString(2).drop(3).dropRight(1)).show()
-    
+
+
+    /* 7. Same as 6, but with all states. */
+    val dataTemp = spark.read.schema(dataSchema).
+    option("header", "true").
+    option("delimiter", "\t").
+    //csv("C:/Users/Dillon/comp/datasets/sparksql/la/la.data.51.Texas")
+    csv("/data/BigData/bls/la/la.data.concatenatedStateFiles")
+    /*
+
+    val series_all = dataTemp.filter('series_id.substr(19,2) === "06" && 'value >= 10000).select('series_id.substr(1,19).as("series_id"), 'period, 'year)
+    val unemp_rates = dataTemp.filter('series_id.substr(19,2) === "03" && 'value >= 54.1).select('series_id.substr(1,19).as("series_id"), 'period, 'year, 'value)
+    val joined3 = series_all.join(unemp_rates, Seq("period", "year", "series_id"))
+    println(series_all.count())
+    println(unemp_rates.count())
+    println(joined3.count())
+    val rw2 = joined3.orderBy(desc("value")).limit(1).first()
+    println(rw2)
+    println(rw2.getString(2).drop(3))
+    dataArea.filter('area_code === rw2.getString(2).drop(3).dropRight(1)).show()
+    */
     // joined2.agg(max($"value")).show()
     //TX has state code of 48
     //make sure to join on series id (minus the ob code), month and year
 
     //for number 7, filter everything less than number 6
 
+    /* 8. What state has the most distinct data series? */
+    //group by state  using the state id
+    //call .distinct.count(), find max
     
+    // state id is 6,2 substr
+
+    val groups = dataTemp.select('series_id.substr(6,2).as("state"), 'series_id).groupBy("state").agg(countDistinct("series_id").as("count"))
+    val maxCode = groups.orderBy(desc("count")).limit(1).first()
+    println("State with most distinct series: "+maxCode)
+
+    /* 9. Geographic plots, 2000 to 2015 by 5 */
+    //have to match up with the zip codes file, probs match the zip code's city name as a substring of the bls area name
+    //Ex. zip code file says "Harvard", blw file says "harvard town"
+    //maybe match on state before hand, too, just to reduce the likelihood of overlap
 }
