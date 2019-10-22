@@ -42,6 +42,8 @@ object SparkSQL extends App {
         option("delimiter", "\t").
     //csv("C:/Users/Dillon/comp/datasets/sparksql/la/la.data.38.NewMexico")
     csv("/data/BigData/bls/la/la.data.38.NewMexico")
+
+
     /* 1. How many series does NM have? */
   
     //csv("C:/Users/Dillon/comp/datasets/sparksql/la/la.data.38.NewMexico")
@@ -66,6 +68,9 @@ object SparkSQL extends App {
         option("delimiter", "\t").
     csv("/data/BigData/bls/la/la.area")
     
+    /********************************
+
+
     val countiesNM = dataArea.filter('area_type_code === "F" && 'area_code.substr(3,2) === "35")
     val unemployments = dataNM.filter('series_id.substr(19, 2) === "04").select('series_id.substr(4, 15).as("area_code"), 'value) //lol 
     val joined = countiesNM.join(unemployments, "area_code") //.show()
@@ -155,17 +160,40 @@ object SparkSQL extends App {
     //for number 7, filter everything less than number 6
 
     /* 8. What state has the most distinct data series? */
-    //group by state  using the state id
-    //call .distinct.count(), find max
-    
-    // state id is 6,2 substr
-
+    /*
     val groups = dataTemp.select('series_id.substr(6,2).as("state"), 'series_id).groupBy("state").agg(countDistinct("series_id").as("count"))
     val maxCode = groups.orderBy(desc("count")).limit(1).first()
     println("State with most distinct series: "+maxCode)
+    */
+
+    *///////////////////////////////////////
 
     /* 9. Geographic plots, 2000 to 2015 by 5 */
     //have to match up with the zip codes file, probs match the zip code's city name as a substring of the bls area name
     //Ex. zip code file says "Harvard", blw file says "harvard town"
     //maybe match on state before hand, too, just to reduce the likelihood of overlap
+
+    //2000
+    val geoSchema = StructType(
+        Array(
+            StructField("zip_code", IntegerType),
+            StructField("latitude", DoubleType),
+            StructField("longitude", DoubleType),
+            StructField("city", StringType),
+            StructField("state", StringType),
+            StructField("country", StringType)
+        )
+    )
+
+    val dataGeo = spark.read.schema(geoSchema).
+    option("header", "true").
+    option("delimiter", ",").
+    //csv("C:/Users/Dillon/comp/datasets/sparksql/la/la.data.51.Texas")
+    csv("/data/BigData/bls/zip_codes_states.csv").filter('state =!= "PR" || 'state =!= "HI" || 'state =!= "AK")
+
+    val stateCodeMap = dataArea.filter('')
+
+    //filter alaska, hawaii, and puerto rico
+    //probs have to map the state code to the state abbrev.
+
 }
