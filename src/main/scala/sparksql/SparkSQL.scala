@@ -133,6 +133,8 @@ object SparkSQL extends App {
     println(rw.getString(2).drop(3))
     dataArea.filter('area_code === rw.getString(2).drop(3).dropRight(1)).show()
 
+    *///////////////////////////////////////
+
 
     /* 7. Same as 6, but with all states. */
     val dataTemp = spark.read.schema(dataSchema).
@@ -140,8 +142,9 @@ object SparkSQL extends App {
     option("delimiter", "\t").
     //csv("C:/Users/Dillon/comp/datasets/sparksql/la/la.data.51.Texas")
     csv("/data/BigData/bls/la/la.data.concatenatedStateFiles")
-    /*
+    
 
+    /*
     val series_all = dataTemp.filter('series_id.substr(19,2) === "06" && 'value >= 10000).select('series_id.substr(1,19).as("series_id"), 'period, 'year)
     val unemp_rates = dataTemp.filter('series_id.substr(19,2) === "03" && 'value >= 54.1).select('series_id.substr(1,19).as("series_id"), 'period, 'year, 'value)
     val joined3 = series_all.join(unemp_rates, Seq("period", "year", "series_id"))
@@ -166,7 +169,6 @@ object SparkSQL extends App {
     println("State with most distinct series: "+maxCode)
     */
 
-    *///////////////////////////////////////
 
     /* 9. Geographic plots, 2000 to 2015 by 5 */
     //have to match up with the zip codes file, probs match the zip code's city name as a substring of the bls area name
@@ -191,7 +193,22 @@ object SparkSQL extends App {
     //csv("C:/Users/Dillon/comp/datasets/sparksql/la/la.data.51.Texas")
     csv("/data/BigData/bls/zip_codes_states.csv").filter('state =!= "PR" || 'state =!= "HI" || 'state =!= "AK")
 
-    val stateCodeMap = dataArea.filter('')
+    // val stateCodes = Array("AL","AK","AZ","AR","CA","CO","CT","DE","DC","FL","GA","HI","ID","IL", "IN","IA","KS","KY","LA","ME","MD","MA","MI","MN","MS","MO","MT","NE","NV","NH","NJ","NM","NY","NC","ND", "OH","OK","OR","PA","RI","SC","SD","TN","TX","UT","VT","VA","WA","WV","WI","WY") 
+    // val stateNames = scala.io.Source.fromFile("/users/dakins1/bigdata/stateName.txt").getLines().toArray
+    // val stateMap = stateCodes.zip(stateNames).toMap
+    val stateSchema = StructType(Array(StructField("code", StringType), StructField("name", StringType)))
+    val stateMap = spark.read.schema(stateSchema).option("header", "false").option("delimiter", ",").csv("/users/dakins1/bigdata/stateMappings.txt")
+    
+    
+    val unempRates = dataTemp.filter('series_id.substr(19,2) === "03")
+    val joined4 = dataGeo.join(stateMap, 'state === 'code)
+    joined4.show()
+    println(unempRates.count())
+    println(joined4.count())
+
+    
+
+
 
     //filter alaska, hawaii, and puerto rico
     //probs have to map the state code to the state abbrev.
