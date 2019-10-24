@@ -76,5 +76,5 @@ Rate of 9 is red, 6 is blue, 1 is green, across a gradient
 
 ![PIC](src/main/scala/sparksql/2000.png)
 ![PIC1](src/main/scala/sparksql/2005.png)
-![PIC2](src/main/scala/sparksql/20010.png)
+![PIC2](src/main/scala/sparksql/2010.png)
 ![PIC3](src/main/scala/sparksql/2015.png)
