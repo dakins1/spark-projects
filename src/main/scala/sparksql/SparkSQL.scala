@@ -15,6 +15,7 @@ import org.apache.spark.sql.types.StructField
 import org.apache.spark.sql.types.StructType
 import org.apache.spark.SparkConf
 import swiftvis2.plotting.Plot
+import swiftvis2.plotting.styles.ScatterStyle
 import swiftvis2.plotting._
 import swiftvis2.plotting.renderer.SwingRenderer
 import org.apache.parquet.format.IntType
@@ -198,15 +199,82 @@ object SparkSQL extends App {
     // val stateMap = stateCodes.zip(stateNames).toMap
     val stateSchema = StructType(Array(StructField("code", StringType), StructField("name", StringType)))
     val stateMap = spark.read.schema(stateSchema).option("header", "false").option("delimiter", ",").csv("/users/dakins1/bigdata/stateMappings.txt")
-    
-    
-    val unempRates = dataTemp.filter('series_id.substr(19,2) === "03")
-    val joined4 = dataGeo.join(stateMap, 'state === 'code)
-    joined4.show()
-    println(unempRates.count())
-    println(joined4.count())
 
+    val unempRates = dataTemp.filter('series_id.substr(19,2) === "03")
+    val joined4 = dataGeo.join(dataArea.filter(!'area_text.contains("Alaska") || !'area_text.contains("Hawaii") || !'area_text.contains("Puerto Rico") || 
+        !'area_text.contains("AK") || !'area_text.contains("PR") || !'area_text.contains("HI")), 
+        'area_text.contains('city) && 'area_text.contains('state))
+    // joined4.show()
+    val joined5 = joined4.join(unempRates, 'area_code === 'series_id.substr(4, 15))
+
+    unempRates.describe().show()
+
+    val cg = ColorGradient(1946.0 -> RedARGB, 1975.0 -> BlueARGB, 2014.0 -> GreenARGB)
+    // val sizes = data.map(_.precip * 2 + 2)
+    // val tempByDayPlot = Plot.simple(
+    //   ScatterStyle(data.map(_.doy), data.map(_.tave), symbolWidth = sizes, symbolHeight = sizes, colors = cg(data.map(_.year))), 
+    //   "SA Temps", "Day of Year", "Temp")
+    // SwingRenderer(tempByDayPlot, 800, 800, true)
+
+    //how do we account for multiple entries of the same city...?
+
+    val fuckMe = dataArea.filter(!'area_text.contains("Alaska") || !'area_text.contains("Hawaii") || !'area_text.contains("Puerto Rico") || 
+        !'area_text.contains("AK") || !'area_text.contains("PR") || !'area_text.contains("HI"))
+    println(fuckMe.count())
+    fuckMe.show(fuckMe.count().toInt)
+
+    // 49.029970, -126.697805
+    // 23.767838, -72.197626
+    def makeThingy(data:org.apache.spark.sql.DataFrame):(PlotDoubleSeries, PlotDoubleSeries, PlotIntSeries, PlotDoubleSeries) = {
+        /*
+        val cg = ColorGradient(6+(3.5*3) -> RedARGB, 6.0 -> BlueARGB, 1.0 -> GreenARGB)
+        val arr = data.select('latitude, 'longitude, 'value).filter("longitude is not null or latitude is not null").collect()
+        println(arr(3))
+        val sizes =  (for (i <- 1 to arr.size) yield 8).toArray
+        // for (i <- 310 to 400) println(i + " " + data.
+        (arr.map(r => r.getDouble(0)), arr.map(_.getDouble(1)), sizes ,arr.map(r => cg(r.getDouble(2))))
+        */
+        val cg = ColorGradient(6+(3.5/* *3 */) -> RedARGB, 6.0 -> BlueARGB, 1.0 -> GreenARGB)
+        val arr = data.select('latitude, 'longitude, 'value)
+            .filter("longitude is not null or latitude is not null or (longitude > -126.0 and latitude < 49.0) or (longitude < -72.1 and latitude > 23.7) ").collect()
+        println(arr(3))
+        val sizes =  (for (i <- 1 to arr.size) yield 8).toArray
+        // for (i <- 310 to 400) println(i + " " + data.
+        // ScatterStyle(data.map(_.doy), data.map(_.tave), symbolWidth = sizes, symbolHeight = sizes, colors = cg(data.map(_.year))), 
+    //   "SA Temps", "Day of Year", "Temp")
+        (arr.map(r => r.getDouble(1)), arr.map(_.getDouble(0)), sizes, arr.map(r => cg(r.getDouble(2))))
+    }
     
+    def makeThingy1(data:org.apache.spark.sql.DataFrame):ScatterStyle = {
+        val cg = ColorGradient(6+(3.5/* *3 */) -> RedARGB, 6.0 -> BlueARGB, 1.0 -> GreenARGB)
+        val arr = data.select('latitude, 'longitude, 'value)
+            .filter(('longitude > -126.0 && 'latitude < 49.0) || ('longitude < -72.1 && 'latitude > 23.7)).collect()
+        println(arr(3))
+        val sizes =  (for (i <- 1 to arr.size) yield 8).toArray
+        // for (i <- 310 to 400) println(i + " " + data.
+        // ScatterStyle(data.map(_.doy), data.map(_.tave), symbolWidth = sizes, symbolHeight = sizes, colors = cg(data.map(_.year))), 
+    //   "SA Temps", "Day of Year", "Temp")
+        ScatterStyle(arr.map(r => r.getDouble(1)), arr.map(_.getDouble(0)), symbolWidth = 8 , symbolHeight = 8, colors = arr.map(r => cg(r.getDouble(2))))
+    }
+
+    val y2ks = (for (i <- 2000 to 2015 by 5) yield joined5.filter('year === i)).toSeq
+    
+
+    // val plots = Plot.scatterPlots(y2ks.map(y => makeThingy(y)), "Data" , "Longitude", "Latitude") 
+    // val plots = Plot.scatterPlotGrid(Seq(makeThingy(y2k5)), "Data" , "Longitude", "Latitude") 
+    //try flipping rows/columns next
+        val p = Plot.simple(makeThingy1(y2ks(0)), "Unemployment Rates 2000", "Longitude", "Latitude")
+        SwingRenderer(p, 800, 800, true)
+        val p1 = Plot.simple(makeThingy1(y2ks(1)), "Unemployment Rates 2005", "Longitude", "Latitude")
+        SwingRenderer(p1, 800, 800, true)
+        val p2 = Plot.simple(makeThingy1(y2ks(2)), "Unemployment Rates 2010", "Longitude", "Latitude")
+        SwingRenderer(p2, 800, 800, true)
+        val p3 = Plot.simple(makeThingy1(y2ks(3)), "Unemployment Rates 2015", "Longitude", "Latitude")
+        SwingRenderer(p3, 800, 800, true)
+    
+    
+
+
 
 
 

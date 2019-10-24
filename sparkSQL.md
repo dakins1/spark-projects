@@ -68,3 +68,9 @@ Maine, with 2296 units of distinct series
 
 ### 9)
 
+Rate of 9 is red, 6 is blue, 1 is green, across a gradient
+
+![PIC](src/main/scala/2000.png)
+![PIC1](src/main/scala/2005.png)
+![PIC2](src/main/scala/20010.png)
+![PIC3](src/main/scala/2015.png)
