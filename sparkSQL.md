@@ -68,9 +68,13 @@ Maine, with 2296 units of distinct series
 
 ### 9)
 
+I could not get the scatterPlotGrid to work, and no matter what I tried,
+
+I could not filter out Alaska, Hawaii, or Puerto Rico. 
+
 Rate of 9 is red, 6 is blue, 1 is green, across a gradient
 
-![PIC](src/main/scala/2000.png)
-![PIC1](src/main/scala/2005.png)
-![PIC2](src/main/scala/20010.png)
-![PIC3](src/main/scala/2015.png)
+![PIC](src/main/scala/sparksql/2000.png)
+![PIC1](src/main/scala/sparksql/2005.png)
+![PIC2](src/main/scala/sparksql/20010.png)
+![PIC3](src/main/scala/sparksql/2015.png)
