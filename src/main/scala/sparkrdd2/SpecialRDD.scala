@@ -167,6 +167,7 @@ val conf = new SparkConf().setAppName("Special RDD").setMaster("local[*]") //("s
       */
     val bins2 = (-30.0 to 60.0 by 5.0).toArray
     val counts2 = latSeq(1).filter(p => p._2.obType == "TMAX").map(p => p._2.obValue.toDouble/10).histogram(bins2, true) 
+    val counts69 = latSeq(1).filter(p => p._2.obType == "TMAX").map(p => p._2.obValue.toDouble/10) 
     val hist2 = Plot.histogramPlot(bins2, counts2, BlueARGB, false, "35 < Lat < 42", "Degrees Celsuis", "Number of Reports")
     SwingRenderer(hist2, 800, 600)
     val bins3 = (-40.0 to 60.0 by 5.0).toArray
