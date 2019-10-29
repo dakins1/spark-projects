@@ -18,6 +18,12 @@ case class VoteData(lineNum:Int, votes_dem:Double, votes_gop:Double,
     total_votes:Double, per_dem:Double, per_gop:Double, diff:Int,
     per_point_diff:Double, state_abbr:String, county_name:String,combined_fips:Int)
 
+case class ZipCodeData(zip_code:Int, latitude:Double, longitude:Double, city:String, state:String, county:String)
+
+case class VotesWithGeo(votes_dem:Double, votes_gop:Double, total_votes:Double,
+    per_dem:Double, per_gop:Double, state_abbr:String, county_name:String,
+    latitude:Double, longitude:Double)
+
 object SparkSQL2 {
     def main(args:Array[String]) = {
       val spark = SparkSession.builder().master("local[*]").appName("Temp Data").getOrCreate()
@@ -47,6 +53,7 @@ object SparkSQL2 {
       println(voteData.filter(d => d.per_gop-d.per_dem <= 0.1).count() / voteData.count().toDouble)
       
       /* 3. Plot >:( */
+      /*
       val x1 = voteData.map(_.total_votes).collect()
       val y1 = voteData.map(d => d.per_gop - d.per_dem).collect()
       val p1 = Plot.simple(ScatterStyle(x1, y1, symbolWidth = 8, symbolHeight = 8), "Vote Info of Counties",
@@ -58,6 +65,33 @@ object SparkSQL2 {
       "# Votes", "% Dem - % GOP")
 
       SwingRenderer(p2, 800, 800, true)
-      val apowefj = 3
+      */
+
+      /* 4. Plotting vote results geographically */
+      val dataGeo = spark.read.schema(Encoders.product[ZipCodeData].schema).
+      option("header", "true").
+      option("delimiter", "," ).
+      csv("/data/BigData/bls/zip_codes_states.csv").as[ZipCodeData]
+      .filter("latitude is not null and longitude is not null")
+      
+      val joined1 = voteData.joinWith(dataGeo, 
+          voteData("state_abbr") === dataGeo("state"))
+          
+      val votesWithGeo = joined1.map { case (vd, geo) =>
+        VotesWithGeo(vd.votes_dem, vd.votes_gop, vd.total_votes, vd.per_dem, vd.per_gop,
+          vd.state_abbr, vd.county_name, geo.latitude, geo.longitude)
+      }//.filter(d => d.latitude != null || d.longitude != null)
+
+    val cg1 = ColorGradient(0.0 -> RedARGB, 39.9->RedARGB, 
+      40.0->MagentaARGB, 59.9->MagentaARGB, 60.0->BlueARGB)      
+    val p1 = Plot.simple(ScatterStyle(
+      votesWithGeo.map(_.longitude).collect(),
+      votesWithGeo.map(_.latitude).collect(),
+      symbolWidth = 5, symbolHeight = 5,
+      colors = votesWithGeo.map(_.per_dem).collect().map(p => cg1(p*100))),
+      "Magenta is 40 <= percent democratic <= 60", "Longitude", "Latitude")
+
+    SwingRenderer(p1, 800, 800, true)
+    val x = "this is dumb"
     }
 }
