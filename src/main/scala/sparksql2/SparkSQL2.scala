@@ -12,6 +12,9 @@ import scalafx.application.ConditionalFeature.Swing
 case class SeriesEntry(series_id:String, year:Int, period:String,
     value:Double, footnote_codes:String)
 
+case class SeriesEntryArea(series_id:String, year:Int, period:String,
+  value:Double, footnote_codes:String, area_code1:String)  
+
 case class AreaData(area_type_code:String, area_code:String, area_text:String, display_level:String, 
   selectable:String, sort_sequence:String)
 
@@ -103,12 +106,15 @@ object SparkSQL2 {
     /* 5. Historgrams of Recessions */
     //Make a function and paramaterize by month, year, before/after recession, 
 
-    val dataSeries = spark.read.schema(Encoders.product[SeriesEntry].schema).
+    val preDataSeries = spark.read.schema(Encoders.product[SeriesEntry].schema).
       option("header", "true").
       option("delimiter", "\t").
       // csv("/data/BigData/bls/la/la.data.concatenatedStateFiles").as[SeriesEntry]
       csv("C:\\Users\\Dillon\\comp\\datasets\\sparksql\\la\\la.data.concatenatedStateFiles").as[SeriesEntry].
       filter("value is not null")
+
+    val dataSeries = preDataSeries.map(d => SeriesEntryArea(d.series_id.trim(),d.year,d.period,d.value,
+      d.footnote_codes, d.series_id.substring(3,18)))
 
     val dataArea = spark.read.schema(Encoders.product[AreaData].schema).
       option("header", "true").
@@ -118,12 +124,13 @@ object SparkSQL2 {
     val bins = (0.1 to 50.0 by 1.0).toArray
     def getHisto(month:String, year:Int, bOrA:Boolean, area_type:String):DataAndColor = {
       val series = dataSeries.filter(
-        d => d.period==month && d.year==year && d.series_id.takeRight(2) == "03")
+        d => d.period==month && d.year==year && d.series_id.takeRight(2) == "03") 
       val areas = dataArea.filter(r => r.area_type_code==area_type)
-      val joined = series.joinWith(areas, 'series_id.as[String].substr(4,15) === 'area_code)
-      
+      val joined = series.joinWith(areas, series("area_code1") === areas("area_code"))
+      joined.show(false)
       val counts = joined.map(_._1.value).rdd.histogram(bins, true)
-      SwingRenderer(Plot.histogramPlot(bins, counts, GreenARGB, true, "", "", ""))
+      println(month, year, area_type)
+      println(counts.size)
       DataAndColor(counts, if (bOrA) GreenARGB else RedARGB)
     }
 
@@ -136,6 +143,7 @@ object SparkSQL2 {
     val histos = (for (a <- areaParams) yield {
       (for (d <- dateParams) yield getHisto(d._1, d._2, d._3, a)).toSeq
     }).toSeq
+    // val histos = getHisto("M12", 2007, true, "B")
     val grid = Plot.histogramGrid(bins, histos, true, false, "Unemployment Rates", "Date", "Rates")
     SwingRenderer(grid, 1000, 1000, true)
     val goodLord = ""

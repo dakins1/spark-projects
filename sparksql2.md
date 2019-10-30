@@ -16,3 +16,11 @@
 That's not too helpful, so here's another with total votes < 70000
 
 ![awufhe](src/main/scala/sparksql2/less70000.png)
+
+4. Need to fix and upload this 
+
+5. Unemployment Histograms
+
+The months are in chronological order. Put row order here ****
+
+![ajfwie](src/main/scala/sparksql2/histoGrid.PNG)
