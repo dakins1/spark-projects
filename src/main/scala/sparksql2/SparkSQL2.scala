@@ -30,7 +30,10 @@ case class ZipCodeData(zip_code:Int, latitude:Double, longitude:Double, city:Str
 
 case class VotesWithGeo(votes_dem:Double, votes_gop:Double, total_votes:Double,
     per_dem:Double, per_gop:Double, state_abbr:String, county_name:String,
-    latitude:Double, longitude:Double)
+latitude:Double, longitude:Double)
+
+case class JoinedStep(county:String, per_dem:Double)
+case class RatesCountyVotes(rate:Double, county:String, per_dem:Double)
 
 object SparkSQL2 {
     def main(args:Array[String]) = {
@@ -123,29 +126,46 @@ object SparkSQL2 {
       option("delimiter", "\t").
       csv("C:\\Users\\Dillon\\comp\\datasets\\sparksql\\la\\la.area").as[AreaData]
 
-    val bins = (0.1 to 50.0 by 1.0).toArray
-    def getHisto(month:String, year:Int, bOrA:Boolean, area_type:String):DataAndColor = {
-      val series = dataSeries.filter(
-        d => d.period==month && d.year==year && d.series_id.takeRight(2) == "03") 
-      val areas = dataArea.filter(r => r.area_type_code==area_type)
-      val joined = series.joinWith(areas, series("area_code1") === areas("area_code"))
-      val counts = joined.map(_._1.value).rdd.histogram(bins, true)
-      println(month, year, area_type)
-      DataAndColor(counts, if (bOrA) GreenARGB else RedARGB)
-    }
+    // val bins = (0.1 to 50.0 by 1.0).toArray
+    // def getHisto(month:String, year:Int, bOrA:Boolean, area_type:String):DataAndColor = {
+    //   val series = dataSeries.filter(
+    //     d => d.period==month && d.year==year && d.series_id.takeRight(2) == "03") 
+    //   val areas = dataArea.filter(r => r.area_type_code==area_type)
+    //   val joined = series.joinWith(areas, series("area_code1") === areas("area_code"))
+    //   val counts = joined.map(_._1.value).rdd.histogram(bins, true)
+    //   println(month, year, area_type)
+    //   DataAndColor(counts, if (bOrA) GreenARGB else RedARGB)
+    // }
 
-    val dateParams = Array(
-      ("M06", 1990, true), ("M03", 1991, false), 
-      ("M02", 2001, true), ("M11", 2001, false),
-      ("M12", 2007, true), ("M06", 2009, false))
-    val areaParams = Array("B", "D", "F")
-    val allParams = for (d <- dateParams; a <- areaParams) yield (d._1, d._2, d._3, a)
-    val histos = (for (a <- areaParams) yield {
-      (for (d <- dateParams) yield getHisto(d._1, d._2, d._3, a)).toSeq
-    }).toSeq
-    // val histos = getHisto("M12", 2007, true, "B")
-    val grid = Plot.histogramGrid(bins, histos, true, false, "Unemployment Rates", "Date", "Rates")
-    SwingRenderer(grid, 1000, 1000, true)
+    // val dateParams = Array(
+    //   ("M06", 1990, true), ("M03", 1991, false), 
+    //   ("M02", 2001, true), ("M11", 2001, false),
+    //   ("M12", 2007, true), ("M06", 2009, false))
+    // val areaParams = Array("B", "D", "F")
+    // val allParams = for (d <- dateParams; a <- areaParams) yield (d._1, d._2, d._3, a)
+    // val histos = (for (a <- areaParams) yield {
+    //   (for (d <- dateParams) yield getHisto(d._1, d._2, d._3, a)).toSeq
+    // }).toSeq
+    // // val histos = getHisto("M12", 2007, true, "B")
+    // val grid = Plot.histogramGrid(bins, histos, true, false, "Unemployment Rates", "Date", "Rates")
+    // SwingRenderer(grid, 1000, 1000, true)
+
+      /* 6. Unemployment and voting correlation */
+      //Correlation coefficient between unemployment and democratic votes for all counties
+      //gotta join a county with it's voting percentage
+      val counties = dataArea.filter(_.area_type_code == "F")
+      val unempRates = dataSeries.filter(_.series_id.takeRight(2) == "03")
+      //This is only joining on county names, could possibly include state names
+
+      //join votes and counties, then join the area codes with the series measurements. You'll also have to filter out
+      //non-2016 years. Filter out to calculate with the M13 values. Acknowledge that this throws it off by one month, 
+      //but shouldn't be a big deal. It's not like a recession happened right after. 
+      val countiesAndVotes = counties.joinWith(voteData, counties("area_text") === voteData("county_name")).
+        map(d => JoinedStep(d._2.county_name, d.))
+
+      val cvs = countiesAndVotes.joinWith(unempRates, countiesAndVotes)
+
+
     val goodLord = ""
   }
 }
