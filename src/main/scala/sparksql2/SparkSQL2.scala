@@ -84,6 +84,8 @@ object SparkSQL2 {
       //csv("/data/BigData/bls/zip_codes_states.csv").as[ZipCodeData]
       .filter("latitude is not null and longitude is not null")
       
+      /****THIS MIGHT BE WRONG*****/
+
     //   val joined1 = voteData.joinWith(dataGeo, 
     //       voteData("state_abbr") === dataGeo("state"))
           
@@ -127,10 +129,8 @@ object SparkSQL2 {
         d => d.period==month && d.year==year && d.series_id.takeRight(2) == "03") 
       val areas = dataArea.filter(r => r.area_type_code==area_type)
       val joined = series.joinWith(areas, series("area_code1") === areas("area_code"))
-      joined.show(false)
       val counts = joined.map(_._1.value).rdd.histogram(bins, true)
       println(month, year, area_type)
-      println(counts.size)
       DataAndColor(counts, if (bOrA) GreenARGB else RedARGB)
     }
 
