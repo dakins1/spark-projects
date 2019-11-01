@@ -19,7 +19,7 @@ That's not too helpful, so here's another with total votes < 70000
 
 4. 
 
-![aoiwfji](src/main/scala/num4.png)
+![aoiwfji](src/main/scala/sparksql2/num4.png)
 
 5. Unemployment Histograms
 
