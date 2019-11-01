@@ -24,7 +24,6 @@ That's not too helpful, so here's another with total votes < 70000
 5. Unemployment Histograms
 
     * From left to right, the boxes are in chronological order. The first row is metropolitan areas, the second is micropolitan areas, and the third is counties and equivalents.
-    * P.S., you should look at how Tony coded this graph. 
 
 ![ajfwie](src/main/scala/sparksql2/histoGrid.PNG)
 
