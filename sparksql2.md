@@ -29,8 +29,7 @@ That's not too helpful, so here's another with total votes < 70000
 
 6. Correlation between votes and unemployment
 
-    * Correlation of 0.06. To calculate this I used the M13 value, the yearly average of unemployment. Although it does include the month of December, which happened after the election, I thought it would provide a more accurate picture of the correlation. A result of 0.051 implies that the unemployment rate 
-    didn't really influence the election. This makes sense since the economy was pretty stable by Nov. 2016; voters cared more about other matters.  
+    * Correlation of 0.06. This implies that the unemployment rate didn't really influence the election. This makes sense since the economy was pretty stable by Nov. 2016; voters cared more about other matters.  
 
 ![aiwefh](src/main/scala/sparksql2/plot2.png)
 
