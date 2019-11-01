@@ -33,9 +33,7 @@ That's not too helpful, so here's another with total votes < 70000
 
 ![aiwefh](src/main/scala/sparksql2/plot2.png)
 
-This shows that less populated areas tend to vote Republican. It also shows that the unemployment rate was not a significant factor in this 
-
-election. 
+This shows that less populated areas tend to vote Republican. It also shows that the unemployment rate was not a significant factor in this election. 
 
 7. Relationships
 
