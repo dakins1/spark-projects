@@ -37,7 +37,7 @@ This shows that less populated areas tend to vote Republican. It also shows that
 
 7. Relationships
 
-    * Based on the results from all the previous questions, it seems like the unemployment rates did not influence the election. The number of votes, however, was correlated with the percentage of democratic votes. In general, larger populations voted more democratic. This makes sense, as metropolitan citizens tend to be more democratic and rural citizens do. The plot from question two shows how smaller populations lean Republican. Here is another plot to back me up:
+    * Based on the results from all the previous questions, it seems like the unemployment rates did not influence the election. The number of votes, however, was correlated with the percentage of democratic votes. In general, larger populations voted more democratic. This makes sense, as metropolitan citizens tend to be more democratic than rural citizens do. The plot from question two shows how smaller populations lean Republican. Here is another plot to back me up:
 
 ![faiwejf](src/main/scala/sparksql2/rateVote.png)
 
