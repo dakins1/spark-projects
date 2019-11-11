@@ -140,29 +140,29 @@ object SparkSQL2 {
         AreaData(d.area_type_code, d.area_code, d.area_text.dropRight(4), d.display_level, d.selectable, d.sort_sequence)
       }
 
-    // val bins = (0.0 to 50.0 by 1.0).toArray
-    // def getHisto(month:String, year:Int, bOrA:Boolean, area_type:String):DataAndColor = {
-    //   val series = dataSeries.filter(
-    //     d => d.period==month && d.year==year && d.series_id.takeRight(2) == "03") 
-    //   val areas = dataArea.filter(r => r.area_type_code==area_type)
-      // val joined = series.joinWith(areas, series("area_code1") === areas("area_code"))
-      // val counts = joined.map(_._1.value).rdd.histogram(bins, true)
-      // println(month, year, area_type)
-      // DataAndColor(counts, if (bOrA) GreenARGB else RedARGB)
-    // }
+    val bins = (0.0 to 50.0 by 1.0).toArray
+    def getHisto(month:String, year:Int, bOrA:Boolean, area_type:String):DataAndColor = {
+      val series = dataSeries.filter(
+        d => d.period==month && d.year==year && d.series_id.takeRight(2) == "03") 
+      val areas = dataArea.filter(r => r.area_type_code==area_type)
+      val joined = series.joinWith(areas, series("area_code1") === areas("area_code"))
+      val counts = joined.map(_._1.value).rdd.histogram(bins, true)
+      println(month, year, area_type)
+      DataAndColor(counts, if (bOrA) GreenARGB else RedARGB)
+    }
 
-    // val dateParams = Array(
-    //   ("M06", 1990, true), ("M03", 1991, false), 
-    //   ("M02", 2001, true), ("M11", 2001, false),
-    //   ("M12", 2007, true), ("M06", 2009, false))
-    // val areaParams = Array("B", "D", "F")
-    // val allParams = for (d <- dateParams; a <- areaParams) yield (d._1, d._2, d._3, a)
-    // val histos = (for (a <- areaParams) yield {
-    //   (for (d <- dateParams) yield getHisto(d._1, d._2, d._3, a)).toSeq
-    // }).toSeq
+    val dateParams = Array(
+      ("M06", 1990, true), ("M03", 1991, false), 
+      ("M02", 2001, true), ("M11", 2001, false),
+      ("M11", 2007, true), ("M06", 2009, false))
+    val areaParams = Array("B", "D", "F")
+    val allParams = for (d <- dateParams; a <- areaParams) yield (d._1, d._2, d._3, a)
+    val histos = (for (a <- areaParams) yield {
+      (for (d <- dateParams) yield getHisto(d._1, d._2, d._3, a)).toSeq
+    }).toSeq
     // val histos = getHisto("M12", 2007, true, "B")
-    // val grid = Plot.histogramGrid(bins, histos, true, false, "Unemployment Rates", "Date", "Rates")
-    // SwingRenderer(grid, 1000, 1000, true)
+    val grid = Plot.histogramGrid(bins, histos, true, false, "Unemployment Rates", "Date", "Rates")
+    SwingRenderer(grid, 1000, 1000, true)
 
       /* 6. Unemployment and voting correlation */
       //Correlation coefficient between unemployment and democratic votes for all counties
@@ -187,12 +187,12 @@ object SparkSQL2 {
       votesAndRates.show(false)
 
       
-      // val vMean = votesAndRates.map(_.per_dem).rdd.mean()
-      // val rMean = votesAndRates.map(_.rate).rdd.mean()
-      // val numer = votesAndRates.map(d => (d.per_dem - vMean) * (d.rate - rMean)).rdd.sum() 
-      // val denom1 = math.sqrt(votesAndRates.map(d => (d.per_dem - vMean) * (d.per_dem - vMean)).rdd.sum())
-      // val denom2 = math.sqrt(votesAndRates.map(d => (d.rate - rMean) * (d.rate - rMean)).rdd.sum())
-      // println(numer / (denom1*denom2))
+      val vMean = votesAndRates.map(_.per_dem).rdd.mean()
+      val rMean = votesAndRates.map(_.rate).rdd.mean()
+      val numer = votesAndRates.map(d => (d.per_dem - vMean) * (d.rate - rMean)).rdd.sum() 
+      val denom1 = math.sqrt(votesAndRates.map(d => (d.per_dem - vMean) * (d.per_dem - vMean)).rdd.sum())
+      val denom2 = math.sqrt(votesAndRates.map(d => (d.rate - rMean) * (d.rate - rMean)).rdd.sum())
+      println(numer / (denom1*denom2))
 
 
     /* 6a. Plotting - unemployment x party vote, size = population */
