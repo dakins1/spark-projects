@@ -5,4 +5,6 @@
     * 25 bottles per cast
 
 3. Plot of casts
+Blue represents 0C and red represents 12C
+
 ![aiwejof](src/main/scala/sparkml/casts.png)
