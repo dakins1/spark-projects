@@ -30,6 +30,6 @@ The color of a predicted represents how close it is to the expected value. The a
 
 I also plot the actual values in black, but they end up getting covered by the colored dots. Either way, I think only seeing the error of the predicted values is helpful enough. 
 
-![jaiewfj](src/main/scala/res5.png)
+![jaiewfj](src/main/scala/sparkml/res5.png)
 
 Based on this graph, we can see the model is more likely to correclty predict a value if it is within a certain range of temperature and depth. This shows there is a flaw with our model: unless we a predicting salinity of an area that is below 10 degrees C and above 3600 meters depth, we are unlikely to make a good prediction of salinity. 
