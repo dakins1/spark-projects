@@ -24,7 +24,7 @@ I chose to use latitude, longitude and the Julian day to predict O2ml_L. My thin
 
 7. Plot of findings from #5
 
-I decided to plot the expected values with the actual values. I'm temperature and depth as the x and y axis. I am excluding O2ml_L because a) I can't plot in 3-D and b) O2ml_L's value ranges from 0 to 11 throughout the dataset, wheres temperature and depth range from 1-31 and 0-5351, respectively. I figured temperature and depth have a larger affect on the salinity, therefore they would be most useful for getting close to a visualization. I tried using size to represent the salinity, but it doesn't really have an effect on the visibility of the graph. 
+I decided to plot the expected values with the actual values. I'm using temperature and depth as the x and y axis. I am excluding O2ml_L because a) I can't plot in 3-D and b) O2ml_L's value ranges from 0 to 11 throughout the dataset, wheres temperature and depth range from 1-31 and 0-5351, respectively. I figured temperature and depth have a larger affect on the salinity, therefore they would be most useful for getting close to a visualization. I tried using size to represent the salinity, but it doesn't really have an effect on the visibility of the graph. 
 
 The color of a predicted represents how close it is to the expected value. The average error was 0.13. So if an estimated value has an error of more than 0.26, it is colored red. With an error of 0.13, yellow. If it is close to the actual value, it is green.
 
