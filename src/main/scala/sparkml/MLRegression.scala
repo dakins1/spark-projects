@@ -21,6 +21,8 @@ import swiftvis2.plotting.renderer.SwingRenderer
 import org.apache.parquet.format.IntType
 import org.apache.spark.ml.feature.VectorAssembler
 import org.apache.spark.ml.regression.LinearRegression
+import scalafx.scene.effect.BlendMode.Red
+import io.netty.handler.codec.redis.RedisArrayAggregator
 
 object MLRegression {
     def main(args:Array[String]) {
@@ -86,31 +88,49 @@ object MLRegression {
         // println("Mean abs err: "+lrModel.summary.meanAbsoluteError)
     
         /* 5. LR w/ Depth and O2ml_L */
-        // val newData = newCast.select('T_degC, 'Salnty.as("salinity"), 'Depthm, 'O2ml_L).filter(row => !row.anyNull)
-        // val va1 = new VectorAssembler()
-        //     .setInputCols(Array("Depthm", "T_degC", "O2ml_L"))
-        //     .setOutputCol("featLilJon")
-        // val avengersAssembled = va1.transform(newData)
-        // val lr1 = new LinearRegression()
-        //     .setFeaturesCol("featLilJon")
-        //     .setLabelCol("salinity")
-        // val lrModel1 = lr1.fit(avengersAssembled)
-        // val fitData1 = lrModel1.transform(avengersAssembled)
-        // fitData1.show()
-        // println("New avg. err: " + lrModel1.summary.meanAbsoluteError)
+        val newData = newCast.select('T_degC, 'Salnty.as("salinity"), 'Depthm, 'O2ml_L).filter(row => !row.anyNull)
+        val va1 = new VectorAssembler()
+            .setInputCols(Array("Depthm", "T_degC", "O2ml_L"))
+            .setOutputCol("featLilJon")
+        val avengersAssembled = va1.transform(newData)
+        val lr1 = new LinearRegression()
+            .setFeaturesCol("featLilJon")
+            .setLabelCol("salinity")
+        val lrModel1 = lr1.fit(avengersAssembled)
+        val fitData1 = lrModel1.transform(avengersAssembled)
+        fitData1.show()
+        fitData1.summary().show()
+        println("New avg. err: " + lrModel1.summary.meanAbsoluteError)
+
+        /* 7. Graphing results from #5 */
+        val actual = fitData1.select('salinity.as[Double]).collect()
+        val expected = fitData1.select('prediction.as[Double]).collect()
+        val tempers = fitData1.select('T_degC.as[Double]).collect()
+        val deeptoots = fitData1.select('Depthm.as[Int]).map(_.toDouble).collect()
+        val cg3 = ColorGradient(-0.26 -> RedARGB, -0.13 -> YellowARGB, 0.0 -> GreenARGB, 0.13 -> YellowARGB, 0.26 -> RedARGB)
+        val diffs = actual.zip(expected).map(p => cg3(p._1 - p._2)) //includes colors
+        val actualSizes = actual.map(d => ((d*d)/100) - 4) 
+        val expectedSizes = expected.map(d => ((d*d)/100) - 4) 
+        
+
+        val sp = Plot.stacked(Seq(
+            ScatterStyle(tempers, deeptoots, symbolWidth = actualSizes, symbolHeight = actualSizes),
+            ScatterStyle(tempers, deeptoots, symbolWidth = expectedSizes, symbolHeight = expectedSizes, colors = diffs)
+        ), "Expected vs. actual", "Temperature C", "Depth meters")
+        SwingRenderer(sp, 1000, 1000, true)
 
         /* 6. 3-D LR with Julian day, lat, and lon -> O2ml_L */
-        val lrData1 = newCast.select('Lat_Dec, 'Lon_Dec, 'Julian_Day, 'O2ml_L).filter(row => !row.anyNull)
-        val va2 = new VectorAssembler()
-            .setInputCols(Array("Lat_Dec", "Lon_Dec", "Julian_Day"))
-            .setOutputCol("featNickiMinaj")
-        val schoolAssembly = va2.transform(lrData1)
-        val lr2 = new LinearRegression()
-            .setFeaturesCol("featNickiMinaj")
-            .setLabelCol("O2ml_L")
-        val lrModel2 = lr2.fit(schoolAssembly)
-        val fitData2 = lrModel2.transform(schoolAssembly)
-        fitData2.summary().show(false)
-        println("Mean error for 6: " + lrModel2.summary.meanAbsoluteError)
+        // val lrData1 = newCast.select('Lat_Dec, 'Lon_Dec, 'Julian_Day, 'O2ml_L).filter(row => !row.anyNull)
+        // val va2 = new VectorAssembler()
+        //     .setInputCols(Array("Lat_Dec", "Lon_Dec", "Julian_Day"))
+        //     .setOutputCol("featNickiMinaj")
+        // val schoolAssembly = va2.transform(lrData1)
+        // val lr2 = new LinearRegression()
+        //     .setFeaturesCol("featNickiMinaj")
+        //     .setLabelCol("O2ml_L")
+        // val lrModel2 = lr2.fit(schoolAssembly)
+        // val fitData2 = lrModel2.transform(schoolAssembly)
+        // fitData2.summary().show(false)
+        // println("Mean error for 6: " + lrModel2.summary.meanAbsoluteError)
     }
 }
