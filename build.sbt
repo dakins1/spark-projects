@@ -4,6 +4,8 @@ name := "BigData and Machine Learning"
 
 run / fork := true
 
+javaOptions in run += "-Xmx8G"
+
 version := "1.0"
 
 scalaVersion := "2.12.8"
