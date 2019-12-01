@@ -87,30 +87,37 @@ object MLClustering {
         val dataVotesInt = dataVotes.withColumn("fips_int", 'combined_fips.cast(IntegerType))
 
         val joined = dataVotesInt.join(dataQcewInt, "fips_int").
-            select('area_fips, 'combined_fips, 'fips_int, 'industry_code, 'qtr, 'year, 'total_qtrly_wages, 'month1_emplvl, 'qtrly_estabs, 'per_dem)
+            select('area_fips, 'combined_fips, 'fips_int, 'industry_code, 'qtr, 'year, 'total_qtrly_wages, 'month2_emplvl, 'qtrly_estabs, 'per_dem)
+
+        //should rly talk to dr. myers
+        val q4Data = dataQcewInt.filter('qtr === "4").
+            groupBy('fips_int).
+            agg(avg("total_qtrly_wages").as("total_qtrly_wages"), avg("month2_emplvl").as("month2_emplvl")).
+            join(dataVotesInt, "fips_int").
+            select('total_qtrly_wages, 'month2_emplvl, 'per_dem)
 
         val va = new VectorAssembler()
-            .setInputCols(Array("total_qtrly_wages", "month1_emplvl"))
+            .setInputCols(Array("total_qtrly_wages", "month2_emplvl"))
             .setOutputCol("featRihanna")
-        val dataWithFeatures = va.transform(joined) 
+        val dataWithFeatures = va.transform(q4Data) 
         
         val scaler = new StandardScaler()
             .setInputCol("featRihanna")
             .setOutputCol("featFuture")
         val scalerModel = scaler.fit(dataWithFeatures)
         val scaledData = scalerModel.transform(dataWithFeatures).cache()
-        
+        println("Beginning clustering")
         val kmeans = new KMeans().setK(2).setFeaturesCol("featFuture")
         val kmeansModel = kmeans.fit(scaledData)
         val dataWithClusters = kmeansModel.transform(scaledData)
         dataWithClusters.show()
         dataWithClusters.orderBy(desc("prediction")).show()
-        
+        println("Beginning plotting")
         //qtrly wages, month1 emp level, per dem
-        val pdata = dataWithClusters.select('per_dem.as[Double], 'month1_emplvl.as[Double], 'prediction.as[Double]).collect()
+        val pdata = dataWithClusters.select('per_dem.as[Double], 'total_qtrly_wages.as[Double], 'prediction.as[Double]).collect()
         val cg = ColorGradient(0.0 -> RedARGB, 1.0 -> BlueARGB)
         val plot = Plot.simple(ScatterStyle(pdata.map(_._1), pdata.map(_._2), colors = cg(pdata.map(_._3)),
-            symbolWidth = pdata.map(_ => 3), symbolHeight = pdata.map(_ => 3)), "% Dem", "Total Qtrly Wages", "Clustering")
+            symbolWidth = pdata.map(_ => 5), symbolHeight = pdata.map(_ => 5)), "Clustering", "% Dem", "Total qtrly wages")
         SwingRenderer(plot, 800, 800, true) 
     }
 }

@@ -29,3 +29,8 @@
     * General medical and surgical hospitals had $205806016743 in wages
 
 5. Clustering
+
+![aeioaj](src/main/scala/sparkml/qtrlywages.png)
+
+This is from clustering on the average total_qtrly_wages and average month2_emplvl from the fourth quarter of a whole county, i.e. each county has only one data point. I chose month2 and the fourth quarter so we have the unemployment level from November. For the graph, I put per_dem on the x axis to see how well the clusters line up. I arbitrarily chose wages for the y-axis. Seeing that there is no clear break between the red and blue dots on the x axis, I would not find total wages and unemployment effective clustering variables. It is interesting, though, how most of the blue points are past 50% democratic and above $50000000 wages. 
+
