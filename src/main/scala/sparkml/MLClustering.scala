@@ -30,30 +30,31 @@ object MLClustering {
     def main(args:Array[String]) {
 
         
-        val spark = SparkSession.builder().master("spark://pandora00:7077"/*local[*]"*/).appName("Clustering").getOrCreate()
+        val spark = SparkSession.builder().master(/*"spark://pandora00:7077"*/"local[*]").appName("Clustering").getOrCreate()
         import spark.implicits._
         spark.sparkContext.setLogLevel("WARN")
 
         val dataQcew = spark.read.
         option("header", "true").
         option("inferSchema", true).
-        csv("/data/BigData/bls/qcew/2016.q1-q4.singlefile.csv")
-        // csv("C:/Users/Dillon/comp/datasets/sparksql/qcew/2016.q1-q4.singlefile.csv")
+        // csv("/data/BigData/bls/qcew/2016.q1-q4.singlefile.csv").
+        csv("C:/Users/Dillon/comp/datasets/sparksql/qcew/2016.q1-q4.singlefile.csv").
+        filter("total_qtrly_wages is not null and area_fips is not null and industry_code is not null")
 
         val dataVotes = spark.read.
         option("header", "true").
         option("inferSchema", true).
-        csv("/data/BigData/bls/2016_US_County_Level_Presidential_Results.csv").
-        // csv("C:/Users/Dillon/comp/datasets/sparksql/2016_US_County_Level_Presidential_Results.csv").
-        filter('state_abbr =!= "AK")
+        // csv("/data/BigData/bls/2016_US_County_Level_Presidential_Results.csv").
+        csv("C:/Users/Dillon/comp/datasets/sparksql/2016_US_County_Level_Presidential_Results.csv").
+        filter('state_abbr =!= "AK").
+        filter(row => !row.anyNull)
 
         val dataCounty = spark.read.
         option("header", "true").
         option("inferSchema", true).
-        csv("/data/BigData/bls/qcew/area_titles.csv").
-        withColumn("fips_int", 'area_fips.cast(IntegerType))
-        // csv("C:/Users/Dillon/comp/datasets/sparksql/qcew/area_titles.csv")
-
+        // csv("/data/BigData/bls/qcew/area_titles.csv").
+        csv("C:/Users/Dillon/comp/datasets/sparksql/qcew/area_titles.csv").
+        filter(row => !row.anyNull)
 
         /* 1. Which aggregation level codes are for county-level data? 
         How many entries are in the main data file for each of the county level codes? */
@@ -80,55 +81,36 @@ object MLClustering {
         //probs use color to notate voting tendencies -- actually no, use color to show the cluster it was placed in
         //but then make one of the axes voting tendency or sumtin...fack
 
-        //you're not picking 2-3 dimensions, you're trying to find an ML clustering instance that results in 
-        //2 clusters, and then 3 or more clusters
-        //For the three or more, neutral, moderate, and extreme might be cool clusters
+        val dataQcewInt = dataQcew.filter(!'area_fips.contains("U") && 'area_fips.substr(3,3) =!= "000").
+            withColumn("fips_int", 'area_fips.cast(IntegerType))
 
-        //join with area titles
-        println("**********BEFORE JOIN**************")
-        // val joined = dataCounty.
-        //     join(dataVotes, 'combined_fips === 'fips_int).
-        //     join(dataQcew, "area_fips").
-        val joined = dataVotes.join(dataQcew, 'combined_fips === 'area_fips).
-            filter(row => !row.anyNull).
-            select('total_qtrly_wages, 'month1_emplvl, 'qtrly_estabs, 'per_dem) //selecting only necessary values hopefully helps
-            //make sure the join is unique, possib join on multiple columns
+        val dataVotesInt = dataVotes.withColumn("fips_int", 'combined_fips.cast(IntegerType))
 
-        val voteFips = dataVotes.select('combined_fips).collect().map(_.getInt(0)).toSet
-        val qcewFips = dataQcew.select('area_fips).collect().map(_.getInt(0)).toSet
-        val inter = voteFips.intersect(qcewFips)
-        println("vote fips count: " + voteFips.size)
-        println("qcew fips count: " + qcewFips.size)
-        println("inter fips count: " + inter.size)
-    
-        println("qcew count: " +dataQcew.count())
-        println("vote count: " + dataVotes.count())
-        println("joined count: " + joined.count())
-        // val featuredData = joined.select('total_qtrly_wages, 'month1_emplvl, 'qtrly_estabs)
-        println("*****AFTER JOIN*************\n\n\n\n")
+        val joined = dataVotesInt.join(dataQcewInt, "fips_int").
+            select('area_fips, 'combined_fips, 'fips_int, 'industry_code, 'qtr, 'year, 'total_qtrly_wages, 'month1_emplvl, 'qtrly_estabs, 'per_dem)
+
         val va = new VectorAssembler()
-            .setInputCols(Array("total_qtrly_wages"))
+            .setInputCols(Array("total_qtrly_wages", "month1_emplvl"))
             .setOutputCol("featRihanna")
-        val dataWithFeatures = va.transform(joined) //giving it all the data so we can compare cluster with vote data
-        println("**********AFTER ASSEMBLER*************")
+        val dataWithFeatures = va.transform(joined) 
+        
         val scaler = new StandardScaler()
             .setInputCol("featRihanna")
             .setOutputCol("featFuture")
         val scalerModel = scaler.fit(dataWithFeatures)
         val scaledData = scalerModel.transform(dataWithFeatures).cache()
-        println("scaled count: " + scaledData.count())
-        println("**************AFTER SCALER*****************")
+        
         val kmeans = new KMeans().setK(2).setFeaturesCol("featFuture")
         val kmeansModel = kmeans.fit(scaledData)
-        println("*************START KMEANS*****************")
         val dataWithClusters = kmeansModel.transform(scaledData)
+        dataWithClusters.show()
+        dataWithClusters.orderBy(desc("prediction")).show()
         
-        // val pdata = dataWithClusters.select('total_qtrly_wages.as[Double], 'month1_emplvl.as[Double], 'prediction.as[Double]).collect()
-        val pdata = dataWithClusters.select('per_dem.as[Double], 'total_qtrly_wages.as[Double], 'prediction.as[Double]).collect()
-        val cg = ColorGradient(0.0 -> RedARGB, 1.0 -> GreenARGB, 2.0 -> BlueARGB)
-        val plot = Plot.simple(ScatterStyle(pdata.map(_._1), pdata.map(_._2), colors = cg(pdata.map(_._3))))
+        //qtrly wages, month1 emp level, per dem
+        val pdata = dataWithClusters.select('per_dem.as[Double], 'month1_emplvl.as[Double], 'prediction.as[Double]).collect()
+        val cg = ColorGradient(0.0 -> RedARGB, 1.0 -> BlueARGB)
+        val plot = Plot.simple(ScatterStyle(pdata.map(_._1), pdata.map(_._2), colors = cg(pdata.map(_._3)),
+            symbolWidth = pdata.map(_ => 3), symbolHeight = pdata.map(_ => 3)), "% Dem", "Total Qtrly Wages", "Clustering")
         SwingRenderer(plot, 800, 800, true) 
-        //Ask how we're supposed to get back the units for our data
-        // dataWithClusters.show()
     }
 }
