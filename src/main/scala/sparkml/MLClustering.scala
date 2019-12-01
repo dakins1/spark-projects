@@ -89,7 +89,8 @@ object MLClustering {
         val joined = dataVotesInt.join(dataQcewInt, "fips_int").
             select('area_fips, 'combined_fips, 'fips_int, 'industry_code, 'qtr, 'year, 'total_qtrly_wages, 'month2_emplvl, 'qtrly_estabs, 'per_dem)
 
-        //should rly talk to dr. myers
+        //TODO move up to finer clusters, try to add more columns to help with distinction
+
         val q4Data = dataQcewInt.filter('qtr === "4").
             groupBy('fips_int).
             agg(avg("total_qtrly_wages").as("total_qtrly_wages"), avg("month2_emplvl").as("month2_emplvl")).
