@@ -99,7 +99,7 @@ object MLClustering {
             select('taxable_qtrly_wages, 'month2_emplvl, 'qtrly_estabs, 'per_dem)
 
         val va = new VectorAssembler()
-            .setInputCols(Array("taxable_qtrly_wages", "month2_emplvl", "qtrly_estabs"))
+            .setInputCols(Array("taxable_qtrly_wages", "month2_emplvl"))
             .setOutputCol("featRihanna")
         val dataWithFeatures = va.transform(q4Data) 
         
@@ -132,10 +132,10 @@ object MLClustering {
         println("Beginning plotting")
         
         //qtrly wages, month1 emp level, per dem
-        val pdata = dataWithClusters.select('per_dem.as[Double], 'taxable_qtrly_wages.as[Double], 'prediction.as[Double]).collect()
+        val pdata = dataWithClusters.select('month2_emplvl.as[Double], 'taxable_qtrly_wages.as[Double], 'prediction.as[Double]).collect()
         val cg = ColorGradient(0.0 -> RedARGB, 1.0 -> MagentaARGB, 2.0 -> BlueARGB)
         val plot = Plot.simple(ScatterStyle(pdata.map(_._1), pdata.map(_._2), colors = cg(pdata.map(_._3)),
-            symbolWidth = pdata.map(_ => 5), symbolHeight = pdata.map(_ => 5)), "Clustering", "% Dem", "Taxable qtrly wages")
+            symbolWidth = pdata.map(_ => 5), symbolHeight = pdata.map(_ => 5)), "Clustering", "November Employment Level", "Taxable qtrly wages")
         SwingRenderer(plot, 800, 800, true) 
     }
 }

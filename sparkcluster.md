@@ -58,3 +58,7 @@ For this I stuck with taxable wages and month2 employment, but added qtlry_estab
 
 Overall I don't think the QCEW data is helpful for predicting political tendencies. Based on the previous results, the wage data of a county simply isn't correlated enough with voting to produce reliable clusters. Furthermore, because the wage data has such a huge range, from small towns vs. huge cities, the clustering algorithm will have a hard time correclty predicting the in-between counties. Once you get to a fine enough detail to possibly handle that distinction, the algorithm ends up just clustering for wages and does little to predic political tendency. 
 
+Just for funsies, here is clustering on taxable wages and month2_emplvl with 3 clusters, but I use the employment instead of per_dem for the x axis. This doesn't really provide any additional insight except for how the clusters were geometrically divided. 
+
+![awiejfoaw](src/main/scala/sparkml/funsies.png)
+
