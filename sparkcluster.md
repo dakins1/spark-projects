@@ -49,3 +49,12 @@ This is again taxable wages and month2 employment, but with 3 clusters. This was
 ![aoweifjaio](src/main/scala/sparkml/4c.png)
 
 This is with everything the same but 4 clusters. At this point, we don't have clusters that predict voting tendencies, we just have clusters that group by the taxable wage average. You can see this by the breaks throughout the y-axis: yellow is < 1500000, red is < 9000000 but > 150000, and blue and magenta are a jumble of > 6000000. We still get 87% accuracy, since the bottom left yellow is so dense. 
+
+Therefore I would argue three clusters is the sweet spot, and the next thing to do would be find the variables the produce the best clusters.
+
+![awoefijaiowefja](src/main/scala/sparkml/3cestabs.png)
+
+For this I stuck with taxable wages and month2 employment, but added qtlry_estabs just to see if it would help. It didn't. 
+
+Overall I don't think the QCEW data is helpful for predicting political tendencies. Based on the previous results, the wage data of a county simply isn't correlated enough with voting to produce reliable clusters. Furthermore, because the wage data has such a huge range, from small towns vs. huge cities, the clustering algorithm will have a hard time correclty predicting the in-between counties. Once you get to a fine enough detail to possibly handle that distinction, the algorithm ends up just clustering for wages and does little to predic political tendency. 
+
