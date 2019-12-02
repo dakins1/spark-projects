@@ -38,10 +38,14 @@ For the graph, I put per_dem on the x axis to see how well the clusters line up.
 
 It is interesting how most of the blue points are past 50% democratic and above $50000000 wages. I would guess that an average total wage above 50000000 comes from the larger cities, which we know lean democratic. Therefore we can conclude this clustering instance can detect large metropolitan areas as democratic, but struggles with a finer distinction for smaller towns/counties. Overall I would say using average total_qtrly_wages and month2_emplvl are not very helpful for predicting political outcomes, as this will only make predictions we already know are fairly certain. I think it's still cool, though,that it was able to detect big city vs. rural county. 
 
-![aoifjeoaw](src/main/scala/sparkml/taxablewages.png)
+![aoifjeoaw](src/main/scala/sparkml/taxablewages2c.png)
 
 This is from clustering on average taxable_qtrly_wages and again average month2_emplvl. I figured the taxable_qtrly_wages may slightly help the clustering,as republican states may have less taxable wages. Unfortunately the QCEW website did not explain what, exactly, it meant by taxable wages, so this could be fairly similar to total wages after scaling. But if we look at the graph, we see a significant difference. This resulted in 88.5% accuracy. Although this was a 1% bump in accuracy, I think this shows an important improvement in clustering: it picks up on more of the counties that don't have huge wages. In the process it faslely categorizes some republican counties as democratic, so there is a downside.  
 
-![aoiwejfa](src/main/scala/sparkml/taxablewages2c.png)
+![aoiwejfa](src/main/scala/sparkml/taxablewages.png)
 
-This is again taxable wages and month2 employment, but with 3 clusters. This was 88.9% accurate and looks fairly similar to the previous graph. The biggest difference is, with the third cluster, it can put really large cities in it's own cluster (the magenta colored). 
+This is again taxable wages and month2 employment, but with 3 clusters. This was 88.9% accurate and looks fairly similar to the previous graph. The biggest difference is, with the third cluster, it can put really large cities in their own cluster (the magenta colored). 
+
+![aoweifjaio](src/main/scala/sparkml/4c.png)
+
+This is with everything the same but 4 clusters. At this point, we don't have clusters that predict voting tendencies, we just have clusters that group by the taxable wage average. You can see this by the breaks throughout the y-axis: yellow is < 1500000, red is < 9000000 but > 150000, and blue and magenta are a jumble of > 6000000. We still get 87% accuracy, since the bottom left yellow is so dense. 
