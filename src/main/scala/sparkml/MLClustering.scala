@@ -89,7 +89,8 @@ object MLClustering {
         val joined = dataVotesInt.join(dataQcewInt, "fips_int").
             select('area_fips, 'combined_fips, 'fips_int, 'industry_code, 'qtr, 'year, 'total_qtrly_wages, 'month2_emplvl, 'qtrly_estabs, 'per_dem)
 
-        //TODO move up to finer clusters, try to add more columns to help with distinction
+        //TODO move up to finer clusters, try to add more columns to help with distinctions
+        //TODO also make sure to calculate the percentage complete and graph the stuff
 
         val q4Data = dataQcewInt.filter('qtr === "4").
             groupBy('fips_int).
@@ -107,18 +108,35 @@ object MLClustering {
             .setOutputCol("featFuture")
         val scalerModel = scaler.fit(dataWithFeatures)
         val scaledData = scalerModel.transform(dataWithFeatures).cache()
+        
         println("Beginning clustering")
+        
         val kmeans = new KMeans().setK(2).setFeaturesCol("featFuture")
         val kmeansModel = kmeans.fit(scaledData)
         val dataWithClusters = kmeansModel.transform(scaledData)
-        dataWithClusters.show()
-        dataWithClusters.orderBy(desc("prediction")).show()
+        
+        val crct = dataWithClusters.filter(('prediction === 1 && 'per_dem >= 0.5) || ('prediction === 0 && 'per_dem < 0.5))
+        println("***TOTAL COUNT****" + dataWithClusters.show())
+        val crct1 = dataWithClusters.filter("prediction = 1 and per_dem >= 0.5")
+        crct1.show()
+        val crct2 = dataWithClusters.filter("prediction = 0 and per_dem < 0.5")
+        crct2.show()
+        crct.show()
+        crct.orderBy(desc("per_dem")).show()
+        println("summed correct: " + (crct1.count + crct2.count()))
+        println("summed percent: " + (crct1.count + crct2.count()) / dataWithClusters.count().toDouble)
+        println("correct: " + crct.count())
+        println("percent correct: " + crct.count / dataWithClusters.count().toDouble)
+        // dataWithClusters.show()
+        // dataWithClusters.orderBy(desc("prediction")).show()
+
         println("Beginning plotting")
+        
         //qtrly wages, month1 emp level, per dem
         val pdata = dataWithClusters.select('per_dem.as[Double], 'total_qtrly_wages.as[Double], 'prediction.as[Double]).collect()
         val cg = ColorGradient(0.0 -> RedARGB, 1.0 -> BlueARGB)
         val plot = Plot.simple(ScatterStyle(pdata.map(_._1), pdata.map(_._2), colors = cg(pdata.map(_._3)),
             symbolWidth = pdata.map(_ => 5), symbolHeight = pdata.map(_ => 5)), "Clustering", "% Dem", "Total qtrly wages")
-        SwingRenderer(plot, 800, 800, true) 
+        // SwingRenderer(plot, 800, 800, true) 
     }
 }
