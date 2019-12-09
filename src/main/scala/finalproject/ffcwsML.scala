@@ -36,6 +36,13 @@ import org.apache.spark.ml.stat.Correlation
 import org.apache.spark.ml.linalg.Vectors
 import org.apache.spark.sql.catalyst.expressions.aggregate.Corr
 import _root_.scalafx.scene.effect.BlendMode.Green
+import breeze.macros.expand.valify
+import scalafx.scene.text.FontWeight.Black
+
+import org.apache.spark.mllib.tree.DecisionTree
+import org.apache.spark.mllib.tree.model.DecisionTreeModel
+import org.apache.spark.mllib.util.MLUtils
+import org.apache.spark.ml.regression.DecisionTreeRegressor
 
 object FFCWS {
 	def main(args:Array[String]):Unit = {
@@ -94,6 +101,8 @@ object FFCWS {
 		// incomeData.show()
 
 		/**** Environmental Instability ****/
+		//Higher is more unstable, lower is more stable
+
 		val jobs1Cols = List("m3k22", "m3k23", "f3k23", "f3k23a", "m4k22", "m4k23", "f4k22", "f4k23")
 
 		val jobs1Calc = udf((m3jobs:Double, m3jobsRange:Double, f3jobs:Double, f3jobsRange:Double,
@@ -111,7 +120,7 @@ object FFCWS {
 				} else score += params(i)
 			}
 
-			if (params.count(_ <= -8.0) == params.size) 5 //gotta have some penalty for not being at any survey
+			if (params.count(_ <= -8.0) == params.size) 5 //penalty for not being at any survey
 			else score
 		})
 		val ed1 = data.select("idnum", (jobs1Cols):_*)
@@ -177,7 +186,8 @@ object FFCWS {
 		println("***** Environmental Data ****")
 
 		/**** Parental Sensitivity ****/
-		//Higher is worse, lower is better
+
+		//Higher is considered worse, lower is better
 		//leaving out k5a3a b/c 10 argument limit to UDFs, and guessing that variable isn't as important
 		val parentalCols = Array("k5a2a", "k5a2d", "k5a3d", "k6c9f", "k5a2e", "k5a3e",
 			"k6c17", "k6c28", "k5a2c", "k5a3c")
@@ -190,12 +200,11 @@ object FFCWS {
 			
 			if (mtalk > -1.0) score += (3 - mtalk) 
 			
-			if (mevents > -1.0) score += mevents //scale is reversed, therefore 3 - x 
+			if (mevents > -1.0) score += mevents 
 			if (devents > -1.0) score += devents
-			//p has to be treated differently
 			if (pevents > -1.0) score += pevents 
 			
-			if (mclose > -1.0) score += mclose - 1 //again, scale reversed and goes up to 4
+			if (mclose > -1.0) score += mclose - 1 
 			if (dclose > -1.0) score += dclose - 1
 			if (m6close > -1.0) score += m6close - 1
 			if (d6close > -1.0) score += d6close - 1
@@ -203,7 +212,7 @@ object FFCWS {
 			if (mtime > -1.0) score += (3 - mtime)
 			if (dtime > -1.0) score += (3 - dtime)
 			 
-			if (arr.count(_ == -9.0) == arr.size) 5.0
+			if (arr.count(_ == -9.0) == arr.size) 5.0 //penalty for absence 
 			else score			
 		})
 
@@ -228,7 +237,7 @@ object FFCWS {
 				else if (steal50 > 1.0) score += steal50 - 1.0 //1.0 is never, therefore subtract 1.0 
 
 				if (stealLess50 == -1.0 || stealLess50 == -2.0 || stealLess50 == -4.0) score += 1 //refuse or don't know
-				else if (stealLess50 > 1.0) score += (stealLess50 *.5) - 1.0 //Half the weight for < $50...lol
+				else if (stealLess50 > 1.0) score += (stealLess50 *.5) - 1.0 //Half the weight for < $50
 
 				if (stoppedByPolice == -1.0 || stoppedByPolice == -2.0 || stoppedByPolice == -4.0) score += 1
 				else if (stoppedByPolice == 1.0) {
@@ -326,20 +335,111 @@ object FFCWS {
 		master.show
 		master.summary().show()
 
-		val pdata = master.select('avgInc.as[Double], 'parentCalc.as[Double], 'envCalc.as[Double], 'bhvrlCalcTotal.as[Double]).collect()
-		val p = Plot.stacked(Seq(
-			ScatterStyle(pdata.map(_._1), pdata.map(_._4), symbolWidth=4, symbolHeight=4, colors = pdata.map(_=>GreenARGB)),
-			ScatterStyle(pdata.map(_._1), pdata.map(_._4), symbolWidth=4, symbolHeight=4, colors = pdata.map(_=>BlueARGB)),
-			ScatterStyle(pdata.map(_._3), pdata.map(_._4), symbolWidth=4, symbolHeight=4, colors = pdata.map(_=>MagentaARGB))
-		))
-		SwingRenderer(p, 1000, 1000, true)
+		// val pdata = master.select('avgInc.as[Double], 'parentCalc.as[Double], 'envCalc.as[Double], 'bhvrlCalcTotal.as[Double])
+		// 	.sort(desc("avgInc")).collect()
+		// // val p = Plot.simple(ScatterStyle(pdata.map(_._2), pdata.map(_._4), symbolWidth=5, symbolHeight=5, colors = pdata.map(_=>BlueARGB)),
+		// // 	xLabel = "Parental Involvement Index", yLabel = "Behavioral Index")
+		// // val p2 = Plot.simple(ScatterStyle(pdata.map(_._3), pdata.map(_._4), symbolWidth=5, symbolHeight=5, colors = pdata.map(_=>BlueARGB)),
+		// // 	xLabel = "Environmental Instability Index", yLabel = "Behavioral Index")
+		// // val p1 = Plot.simple(ScatterStyle(pdata.map(_._1), pdata.map(_._4), symbolWidth=5, symbolHeight=5, colors = pdata.map(_=>BlueARGB)),
+		// // xLabel = "Avg. Income", yLabel = "Behavioral Index")
+		// // SwingRenderer(p, 800, 800, true)
+		// // SwingRenderer(p1, 800, 800, true)
+		// // SwingRenderer(p2, 800, 800, true)
+		// val icg = ColorGradient(3128.0->RedARGB, 30000.0->YellowARGB, 50000.0->BlueARGB, 
+		// 	85000.0->GreenARGB, 100000.0->CyanARGB, 200000.0->MagentaARGB, 500000.0 -> BlackARGB)
+		// def incMap(i:Double):Int = {
+		// 	val res = (i / 10000).toInt
+		// 	if (res < 1) (res+2).floor.toInt
+		// 	else if (res > 50) 35
+		// 	else if (res > 30) 30
+		// 	else res
+		// }
+		// val pc = Plot.simple(ScatterStyle(pdata.map(_._2), pdata.map(_._4), 
+		// 	symbolWidth=pdata.map(_._1).map(i => incMap(i)), 
+		// 	symbolHeight=pdata.map(_._1).map(i => incMap(i)), 
+		// 	colors = icg(pdata.map(_._1))),
+		// 	xLabel = "Parental Involvement Index", yLabel = "Behavioral Index")
+		// val p2c = Plot.simple(ScatterStyle(pdata.map(_._3), pdata.map(_._4), 
+		// 	symbolWidth=pdata.map(_._1).map(i => incMap(i)), 
+		// 	symbolHeight=pdata.map(_._1).map(i => incMap(i)), 
+		// 	colors = icg(pdata.map(_._1))),
+		// 	xLabel = "Environmental Instability Index", yLabel = "Behavioral Index")
+		// SwingRenderer(pc, 1200, 1200, true)
+		// SwingRenderer(p2c, 1200, 1200, true)
 
-		val va = new VectorAssembler()
-			.setInputCols(finalParams.toArray)
-			.setOutputCol("featLilYachty")
-		val corrVector = va.transform(master)
-		val Row(coeff:Matrix) = Correlation.corr(corrVector, "featLilYachty").head()
-		println("Correlation matrix: \n" + coeff)
+		// val va = new VectorAssembler()
+		// 	.setInputCols(finalParams.toArray)
+		// 	.setOutputCol("featLilYachty")
+		// val corrVector = va.transform(master)
+		// val Row(coeff:Matrix) = Correlation.corr(corrVector, "featLilYachty").head()
+		// println("Correlation matrix: \n" + coeff)
+
+		val va2 = new VectorAssembler()
+			.setInputCols(Array("avgInc", "parentCalc", "envCalc"))
+			.setOutputCol("featLilWayne")
+		val vectData = va2.transform(master)		
+		
+		// // Split the data into training and test sets (30% held out for testing)
+		// val splits = vectData.randomSplit(Array(0.7, 0.3))
+		// val (trainingData, testData) = (splits(0), splits(1))
+		// trainingData.show()
+		
+		// // Train a DecisionTree model.
+		// //  Empty categoricalFeaturesInfo indicates all features are continuous.
+		// val categoricalFeaturesInfo = Map[Int, Int]()
+		// val impurity = "variance"
+		// val maxDepth = 6
+		// val maxBins = 32
+		
+		// val dtree = new DecisionTreeRegressor()
+		// 	.setImpurity("variance")
+		// 	.setFeaturesCol("featLilWayne")
+		// 	.setLabelCol("bhvrlCalcTotal")
+		// 	.setMaxBins(maxBins)
+		// 	.setMaxDepth(maxDepth)
+		// val model = dtree.fit(trainingData)
+		// val labelsAndPredictions = model.transform(testData).select('bhvrlCalcTotal.as[Double], 'prediction.as[Double]).rdd
+		
+		// // Evaluate model on test instances and compute test error
+		// val testMSE = labelsAndPredictions.map{ case(v, p) => math.pow((v - p), 2)}.mean()
+		// println("Test Mean Squared Error = " + testMSE)
+		// // println("Learned regression tree model:\n" + model.toDebugString)
+
+		// val linReg = new LinearRegression()
+		// 	.setFeaturesCol("featLilWayne")
+		// 	.setLabelCol("bhvrlCalcTotal")
+		// val model1 = linReg.fit(trainingData)
+		// val labelsAndPredictions2 = model1.transform(testData).select('bhvrlCalcTotal.as[Double], 'prediction.as[Double]).rdd
+		// val testMSE2 = labelsAndPredictions2.map{ case(v, p) => math.pow((v - p), 2)}.mean()
+		// println("Test Mean Squared Error for LR = " + testMSE2)
+
+		val scaler = new StandardScaler()
+			.setInputCol("featLilWayne")
+			.setOutputCol("featNickiMinaj")
+		val scalerModel = scaler.fit(vectData)
+		val scaledData = scalerModel.transform(vectData).cache()
+
+		val kmeans = new KMeans()
+			.setK(6)
+			.setFeaturesCol("featNickiMinaj")
+		val kmeansModel = kmeans.fit(scaledData)
+		val kmeansData = kmeansModel.transform(scaledData)
+
+		val kData = kmeansData.select('avgInc.as[Double], 'envCalc.as[Double],
+		 'parentCalc.as[Double], 'bhvrlCalcTotal.as[Double], 'prediction.as[Double]).orderBy(desc("bhvrlCalcTotal")).collect()
+		val kcg = ColorGradient(0.0->BlueARGB, 1.0->GreenARGB, 2.0->RedARGB, 3.0->MagentaARGB, 4.0 -> CyanARGB, 5.0->YellowARGB)
+		val sizes = kData.map(r => ((r._4 / 10) + 1) * 4)
+		val p3 = Plot.simple(
+			ScatterStyle(kData.map(_._1), kData.map(_._2), symbolWidth = sizes, symbolHeight = sizes, colors = kcg(kData.map(_._5) )),
+			xLabel = "Avg. Income", yLabel = "Environmental Instability Index"
+		)
+		val p4 = Plot.simple(
+			ScatterStyle(kData.map(_._2), kData.map(_._3), symbolWidth = sizes, symbolHeight = sizes, colors = kcg(kData.map(_._5) )),
+			xLabel = "Environmental Instability Index", yLabel = "Parental Involvement Index"
+		)
+		SwingRenderer(p3, 800, 800, true)
+		SwingRenderer(p4, 800, 800, true)
 
 
   }
