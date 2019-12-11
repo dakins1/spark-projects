@@ -34,6 +34,11 @@ import org.apache.spark.ml.stat.Correlation
 import org.apache.spark.ml.linalg.Matrix
 import org.apache.spark.ml.feature.Imputer
 
+import org.apache.spark.ml.classification.{RandomForestClassificationModel, RandomForestClassifier}
+import org.apache.spark.ml.evaluation.MulticlassClassificationEvaluator
+import org.apache.spark.ml.feature.{IndexToString, StringIndexer, VectorIndexer}
+
+
 object MLClassification {
     def main(args:Array[String]) {
         val spark =SparkSession
@@ -53,16 +58,20 @@ object MLClassification {
 
         println("Distinct values: " + data.select('_c46).distinct().count())
 
+        println(data.schema)
+        data.schema.fields.map(_.dataType.typeName).foreach(println)
+
         data.groupBy('_c46).count().show()
         data.agg(count("_c46")).show()
         
         import org.apache.spark.sql.types._
-        val numericTypes = Array("int", "float", "double", "long", "decimal")
+        val numericTypes = Array("integer", "float", "double", "long", "decimal")
         val numericDataNames = data.schema.fields.filter(x => numericTypes.contains(x.dataType.typeName)).map(_.name)
         def func(column: org.apache.spark.sql.Column) = column.cast(DoubleType)
         val numericColumns = numericDataNames.map(c => col(c).cast(DoubleType))
         val numericData = data.select(numericDataNames.map(name => func(col(name))):_*)
 
+        numericDataNames.foreach(println)
         numericData.show()
         val imputer = new Imputer()
             .setInputCols(numericDataNames)
@@ -91,7 +100,13 @@ object MLClassification {
         println(coeff1(0, 2), " ", coeff1(1, 0))
 
         /* 6. Classification */
-        
+        println("Vector data")
+        vectData.select("featRihanna").show(false)
+
+        // val randomForest = new RandomForestClassifier()
+        //     .setFeaturesCol("featRihanna")
+        //     .setLabelCol()
+
 
 
     }
