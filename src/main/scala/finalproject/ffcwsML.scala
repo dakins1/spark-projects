@@ -335,84 +335,84 @@ object FFCWS {
 		master.show
 		master.summary().show()
 
-		// val pdata = master.select('avgInc.as[Double], 'parentCalc.as[Double], 'envCalc.as[Double], 'bhvrlCalcTotal.as[Double])
-		// 	.sort(desc("avgInc")).collect()
-		// // val p = Plot.simple(ScatterStyle(pdata.map(_._2), pdata.map(_._4), symbolWidth=5, symbolHeight=5, colors = pdata.map(_=>BlueARGB)),
-		// // 	xLabel = "Parental Involvement Index", yLabel = "Behavioral Index")
-		// // val p2 = Plot.simple(ScatterStyle(pdata.map(_._3), pdata.map(_._4), symbolWidth=5, symbolHeight=5, colors = pdata.map(_=>BlueARGB)),
-		// // 	xLabel = "Environmental Instability Index", yLabel = "Behavioral Index")
-		// // val p1 = Plot.simple(ScatterStyle(pdata.map(_._1), pdata.map(_._4), symbolWidth=5, symbolHeight=5, colors = pdata.map(_=>BlueARGB)),
-		// // xLabel = "Avg. Income", yLabel = "Behavioral Index")
-		// // SwingRenderer(p, 800, 800, true)
-		// // SwingRenderer(p1, 800, 800, true)
-		// // SwingRenderer(p2, 800, 800, true)
-		// val icg = ColorGradient(3128.0->RedARGB, 30000.0->YellowARGB, 50000.0->BlueARGB, 
-		// 	85000.0->GreenARGB, 100000.0->CyanARGB, 200000.0->MagentaARGB, 500000.0 -> BlackARGB)
-		// def incMap(i:Double):Int = {
-		// 	val res = (i / 10000).toInt
-		// 	if (res < 1) (res+2).floor.toInt
-		// 	else if (res > 50) 35
-		// 	else if (res > 30) 30
-		// 	else res
-		// }
-		// val pc = Plot.simple(ScatterStyle(pdata.map(_._2), pdata.map(_._4), 
-		// 	symbolWidth=pdata.map(_._1).map(i => incMap(i)), 
-		// 	symbolHeight=pdata.map(_._1).map(i => incMap(i)), 
-		// 	colors = icg(pdata.map(_._1))),
-		// 	xLabel = "Parental Involvement Index", yLabel = "Behavioral Index")
-		// val p2c = Plot.simple(ScatterStyle(pdata.map(_._3), pdata.map(_._4), 
-		// 	symbolWidth=pdata.map(_._1).map(i => incMap(i)), 
-		// 	symbolHeight=pdata.map(_._1).map(i => incMap(i)), 
-		// 	colors = icg(pdata.map(_._1))),
-		// 	xLabel = "Environmental Instability Index", yLabel = "Behavioral Index")
-		// SwingRenderer(pc, 1200, 1200, true)
-		// SwingRenderer(p2c, 1200, 1200, true)
+		val pdata = master.select('avgInc.as[Double], 'parentCalc.as[Double], 'envCalc.as[Double], 'bhvrlCalcTotal.as[Double])
+			.sort(desc("avgInc")).collect()
+		val p = Plot.simple(ScatterStyle(pdata.map(_._2), pdata.map(_._4), symbolWidth=5, symbolHeight=5, colors = pdata.map(_=>BlueARGB)),
+			xLabel = "Parental Involvement Index", yLabel = "Behavioral Index")
+		val p2 = Plot.simple(ScatterStyle(pdata.map(_._3), pdata.map(_._4), symbolWidth=5, symbolHeight=5, colors = pdata.map(_=>BlueARGB)),
+			xLabel = "Environmental Instability Index", yLabel = "Behavioral Index")
+		val p1 = Plot.simple(ScatterStyle(pdata.map(_._1), pdata.map(_._4), symbolWidth=5, symbolHeight=5, colors = pdata.map(_=>BlueARGB)),
+		xLabel = "Avg. Income", yLabel = "Behavioral Index")
+		SwingRenderer(p, 800, 800, true)
+		SwingRenderer(p1, 800, 800, true)
+		SwingRenderer(p2, 800, 800, true)
+		val icg = ColorGradient(3128.0->RedARGB, 30000.0->YellowARGB, 50000.0->BlueARGB, 
+			85000.0->GreenARGB, 100000.0->CyanARGB, 200000.0->MagentaARGB, 500000.0 -> BlackARGB)
+		def incMap(i:Double):Int = {
+			val res = (i / 10000).toInt
+			if (res < 1) (res+2).floor.toInt
+			else if (res > 50) 35
+			else if (res > 30) 30
+			else res
+		}
+		val pc = Plot.simple(ScatterStyle(pdata.map(_._2), pdata.map(_._4), 
+			symbolWidth=pdata.map(_._1).map(i => incMap(i)), 
+			symbolHeight=pdata.map(_._1).map(i => incMap(i)), 
+			colors = icg(pdata.map(_._1))),
+			xLabel = "Parental Involvement Index", yLabel = "Behavioral Index")
+		val p2c = Plot.simple(ScatterStyle(pdata.map(_._3), pdata.map(_._4), 
+			symbolWidth=pdata.map(_._1).map(i => incMap(i)), 
+			symbolHeight=pdata.map(_._1).map(i => incMap(i)), 
+			colors = icg(pdata.map(_._1))),
+			xLabel = "Environmental Instability Index", yLabel = "Behavioral Index")
+		SwingRenderer(pc, 1200, 1200, true)
+		SwingRenderer(p2c, 1200, 1200, true)
 
-		// val va = new VectorAssembler()
-		// 	.setInputCols(finalParams.toArray)
-		// 	.setOutputCol("featLilYachty")
-		// val corrVector = va.transform(master)
-		// val Row(coeff:Matrix) = Correlation.corr(corrVector, "featLilYachty").head()
-		// println("Correlation matrix: \n" + coeff)
+		val va = new VectorAssembler()
+			.setInputCols(finalParams.toArray)
+			.setOutputCol("featLilYachty")
+		val corrVector = va.transform(master)
+		val Row(coeff:Matrix) = Correlation.corr(corrVector, "featLilYachty").head()
+		println("Correlation matrix: \n" + coeff)
 
 		val va2 = new VectorAssembler()
 			.setInputCols(Array("avgInc", "parentCalc", "envCalc"))
 			.setOutputCol("featLilWayne")
 		val vectData = va2.transform(master)		
 		
-		// // Split the data into training and test sets (30% held out for testing)
-		// val splits = vectData.randomSplit(Array(0.7, 0.3))
-		// val (trainingData, testData) = (splits(0), splits(1))
-		// trainingData.show()
+		// Split the data into training and test sets (30% held out for testing)
+		val splits = vectData.randomSplit(Array(0.7, 0.3))
+		val (trainingData, testData) = (splits(0), splits(1))
+		trainingData.show()
 		
-		// // Train a DecisionTree model.
-		// //  Empty categoricalFeaturesInfo indicates all features are continuous.
-		// val categoricalFeaturesInfo = Map[Int, Int]()
-		// val impurity = "variance"
-		// val maxDepth = 6
-		// val maxBins = 32
+		// Train a DecisionTree model.
+		//  Empty categoricalFeaturesInfo indicates all features are continuous.
+		val categoricalFeaturesInfo = Map[Int, Int]()
+		val impurity = "variance"
+		val maxDepth = 6
+		val maxBins = 32
 		
-		// val dtree = new DecisionTreeRegressor()
-		// 	.setImpurity("variance")
-		// 	.setFeaturesCol("featLilWayne")
-		// 	.setLabelCol("bhvrlCalcTotal")
-		// 	.setMaxBins(maxBins)
-		// 	.setMaxDepth(maxDepth)
-		// val model = dtree.fit(trainingData)
-		// val labelsAndPredictions = model.transform(testData).select('bhvrlCalcTotal.as[Double], 'prediction.as[Double]).rdd
+		val dtree = new DecisionTreeRegressor()
+			.setImpurity("variance")
+			.setFeaturesCol("featLilWayne")
+			.setLabelCol("bhvrlCalcTotal")
+			.setMaxBins(maxBins)
+			.setMaxDepth(maxDepth)
+		val model = dtree.fit(trainingData)
+		val labelsAndPredictions = model.transform(testData).select('bhvrlCalcTotal.as[Double], 'prediction.as[Double]).rdd
 		
-		// // Evaluate model on test instances and compute test error
-		// val testMSE = labelsAndPredictions.map{ case(v, p) => math.pow((v - p), 2)}.mean()
-		// println("Test Mean Squared Error = " + testMSE)
-		// // println("Learned regression tree model:\n" + model.toDebugString)
+		// Evaluate model on test instances and compute test error
+		val testMSE = labelsAndPredictions.map{ case(v, p) => math.pow((v - p), 2)}.mean()
+		println("Test Mean Squared Error = " + testMSE)
+		// println("Learned regression tree model:\n" + model.toDebugString)
 
-		// val linReg = new LinearRegression()
-		// 	.setFeaturesCol("featLilWayne")
-		// 	.setLabelCol("bhvrlCalcTotal")
-		// val model1 = linReg.fit(trainingData)
-		// val labelsAndPredictions2 = model1.transform(testData).select('bhvrlCalcTotal.as[Double], 'prediction.as[Double]).rdd
-		// val testMSE2 = labelsAndPredictions2.map{ case(v, p) => math.pow((v - p), 2)}.mean()
-		// println("Test Mean Squared Error for LR = " + testMSE2)
+		val linReg = new LinearRegression()
+			.setFeaturesCol("featLilWayne")
+			.setLabelCol("bhvrlCalcTotal")
+		val model1 = linReg.fit(trainingData)
+		val labelsAndPredictions2 = model1.transform(testData).select('bhvrlCalcTotal.as[Double], 'prediction.as[Double]).rdd
+		val testMSE2 = labelsAndPredictions2.map{ case(v, p) => math.pow((v - p), 2)}.mean()
+		println("Test Mean Squared Error for LR = " + testMSE2)
 
 		val scaler = new StandardScaler()
 			.setInputCol("featLilWayne")

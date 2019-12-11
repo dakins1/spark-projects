@@ -30,7 +30,8 @@ import org.apache.spark.ml.evaluation.BinaryClassificationEvaluator
 import scalafx.scene.effect.BlendMode.Red
 import io.netty.handler.codec.redis.RedisArrayAggregator
 import org.apache.spark.ml.feature.StandardScaler
-import breeze.linalg.Matrix
+import org.apache.spark.ml.stat.Correlation
+import org.apache.spark.ml.linalg.Matrix
 
 object MLClassification {
     def main(args:Array[String]) {
@@ -43,18 +44,29 @@ object MLClassification {
 
         spark.sparkContext.setLogLevel("WARN")
 
-        val raw = spark.read.option("header", "false").option("inferSchema", "true").option("delimiter", "\t").
+        val data = spark.read.option("header", "false").option("inferSchema", "true").option("delimiter", "\t").
         csv("C:/Users/Dillon/comp/datasets/sparksql/admissions/AdmissionAnon.tsv")
 
-        println("Num columns: " + raw.columns.size)
-        println("Num rows: " + raw.count())
+        println("Num columns: " + data.columns.size)
+        println("Num rows: " + data.count())
 
-        println("Distinct values: " + raw.select('_c46).distinct().count())
+        println("Distinct values: " + data.select('_c46).distinct().count())
 
-        raw.groupBy('_c46).count().show()
-        raw.agg(count("_c46")).show()
+        data.groupBy('_c46).count().show()
+        data.agg(count("_c46")).show()
 
-        //did this really cause a fucking error?
-        // val Row(coeff1: Matrix) = //unapply pattern match
+        val numericTypes = Array("int", "float", "double", "long", "decimal")
+        val numericDataNames = data.schema.fields.filter(x => numericTypes.contains(x.dataType.typeName)).map(_.name)
+        val numericData = data.select(numericDataNames.head, numericDataNames.tail:_*).filter(!_.anyNull)
+
+        val va = new VectorAssembler()
+            .setInputCols(numericDataNames)
+            .setOutputCol("featRihanna")
+        val vectData = va.transform(numericData)
+        // vectData.select("featRihanna").show()
+
+        val Row(coeff1: Matrix) = Correlation.corr(vectData, "featRihanna").head()
+        println("Print the fucking matrix")
+        println(coeff1.toString(18, Int.MaxValue))
     }
 }
