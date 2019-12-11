@@ -32,6 +32,7 @@ import io.netty.handler.codec.redis.RedisArrayAggregator
 import org.apache.spark.ml.feature.StandardScaler
 import org.apache.spark.ml.stat.Correlation
 import org.apache.spark.ml.linalg.Matrix
+import org.apache.spark.ml.feature.Imputer
 
 object MLClassification {
     def main(args:Array[String]) {
@@ -54,19 +55,44 @@ object MLClassification {
 
         data.groupBy('_c46).count().show()
         data.agg(count("_c46")).show()
-
+        
+        import org.apache.spark.sql.types._
         val numericTypes = Array("int", "float", "double", "long", "decimal")
         val numericDataNames = data.schema.fields.filter(x => numericTypes.contains(x.dataType.typeName)).map(_.name)
-        val numericData = data.select(numericDataNames.head, numericDataNames.tail:_*).filter(!_.anyNull)
+        def func(column: org.apache.spark.sql.Column) = column.cast(DoubleType)
+        val numericColumns = numericDataNames.map(c => col(c).cast(DoubleType))
+        val numericData = data.select(numericDataNames.map(name => func(col(name))):_*)
 
-        val va = new VectorAssembler()
+        numericData.show()
+        val imputer = new Imputer()
             .setInputCols(numericDataNames)
+            .setOutputCols(numericDataNames.map(_ + "i"))
+        val impModel = imputer.fit(numericData)
+            
+        val impNames = numericDataNames.map(_ + "i")
+        val impCols = impNames.map(c => col(c))
+
+        val impData = impModel.transform(numericData).select(impCols:_*)
+
+        
+        val va = new VectorAssembler()
+            .setInputCols(impNames)
             .setOutputCol("featRihanna")
-        val vectData = va.transform(numericData)
-        // vectData.select("featRihanna").show()
+        val vectData = va.transform(impData)
 
         val Row(coeff1: Matrix) = Correlation.corr(vectData, "featRihanna").head()
-        println("Print the fucking matrix")
-        println(coeff1.toString(18, Int.MaxValue))
+    
+        println(coeff1.toString(coeff1.numRows, Int.MaxValue))
+
+
+        val cs = (for (i <- 0 until coeff1.numRows) yield coeff1(coeff1.numCols-1, i)).zip(numericDataNames)
+            .filter(_._1 != 1.0).sortBy(_._1.abs).takeRight(3)
+        println(cs)
+        println(coeff1(0, 2), " ", coeff1(1, 0))
+
+        /* 6. Classification */
+        
+
+
     }
 }
