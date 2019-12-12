@@ -73,8 +73,11 @@ For all models, I used a random 70/30 training/testing split.
 Multiclass
 
 Using a random forest:
+
 numTrees = 20, accuracy was 55%
+
 numTrees = 10, still 55%
+
 numTrees = 5, 52%
 
 Using a decision tree:
