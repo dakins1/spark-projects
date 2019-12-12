@@ -37,6 +37,10 @@ import org.apache.spark.ml.feature.Imputer
 import org.apache.spark.ml.classification.{RandomForestClassificationModel, RandomForestClassifier}
 import org.apache.spark.ml.evaluation.MulticlassClassificationEvaluator
 import org.apache.spark.ml.feature.{IndexToString, StringIndexer, VectorIndexer}
+import org.apache.spark.ml.evaluation.Evaluator
+import org.apache.spark.mllib.tree.DecisionTree
+import org.apache.spark.ml.classification.DecisionTreeClassifier
+import org.apache.spark.ml.classification.NaiveBayes
 
 
 object MLClassification {
@@ -53,6 +57,7 @@ object MLClassification {
         val data = spark.read.option("header", "false").option("inferSchema", "true").option("delimiter", "\t").
         csv("C:/Users/Dillon/comp/datasets/sparksql/admissions/AdmissionAnon.tsv")
 
+        /*
         println("Num columns: " + data.columns.size)
         println("Num rows: " + data.count())
 
@@ -63,7 +68,7 @@ object MLClassification {
 
         data.groupBy('_c46).count().show()
         data.agg(count("_c46")).show()
-        
+        */
         import org.apache.spark.sql.types._
         val numericTypes = Array("integer", "float", "double", "long", "decimal")
         val numericDataNames = data.schema.fields.filter(x => numericTypes.contains(x.dataType.typeName)).map(_.name)
@@ -82,31 +87,86 @@ object MLClassification {
         val impCols = impNames.map(c => col(c))
 
         val impData = impModel.transform(numericData).select(impCols:_*)
-
         
-        val va = new VectorAssembler()
-            .setInputCols(impNames)
-            .setOutputCol("featRihanna")
-        val vectData = va.transform(impData)
+        // val va = new VectorAssembler()
+        //     .setInputCols(impNames)
+        //     .setOutputCol("featRihanna")
+        // val vectData = va.transform(impData)
 
-        val Row(coeff1: Matrix) = Correlation.corr(vectData, "featRihanna").head()
+        // val Row(coeff1: Matrix) = Correlation.corr(vectData, "featRihanna").head()
     
-        println(coeff1.toString(coeff1.numRows, Int.MaxValue))
+        // println(coeff1.toString(coeff1.numRows, Int.MaxValue))
 
 
-        val cs = (for (i <- 0 until coeff1.numRows) yield coeff1(coeff1.numCols-1, i)).zip(numericDataNames)
-            .filter(_._1 != 1.0).sortBy(_._1.abs).takeRight(3)
-        println(cs)
-        println(coeff1(0, 2), " ", coeff1(1, 0))
+        // val cs = (for (i <- 0 until coeff1.numRows) yield coeff1(coeff1.numCols-1, i)).zip(numericDataNames)
+        //     .filter(_._1 != 1.0).sortBy(_._1.abs).takeRight(3)
+        // println(cs)
+        // println(coeff1(0, 2), " ", coeff1(1, 0))
 
         /* 6. Classification */
-        println("Vector data")
-        vectData.select("featRihanna").show(false)
 
-        // val randomForest = new RandomForestClassifier()
-        //     .setFeaturesCol("featRihanna")
-        //     .setLabelCol()
+        val cva = new VectorAssembler()
+            .setInputCols(impNames.dropRight(1))
+            .setOutputCol("featDrake")
+        val cData = cva.transform(impData).withColumn("binary", when('_c46i===0.0 || '_c46i===1.0, 0.0).otherwise(1.0))
 
+
+
+        val splits = cData.randomSplit(Array(.7, .3))
+        val (training, testing) = splits(0).cache -> splits(1).cache()
+
+
+        val randomForest = new RandomForestClassifier()
+            .setFeaturesCol("featDrake")
+            .setLabelCol("binary")
+            .setNumTrees(5)
+        val rtModel = randomForest.fit(training)
+        val rtData = rtModel.transform(testing)
+        val evaluator = new BinaryClassificationEvaluator()
+            .setLabelCol("binary")
+            // .setPredictionCol("prediction")
+            // .setMetricName("accuracy")
+        val accuracy = evaluator.evaluate(rtData)
+        println("Accuracy = " + accuracy)
+
+        val dTree = new DecisionTreeClassifier()
+            .setFeaturesCol("featDrake")
+            .setLabelCol("binary")
+            .setMaxDepth(5)
+        val dTreeModel = dTree.fit(training)
+        val dData = dTreeModel.transform(testing)
+        val evaluator1 = new BinaryClassificationEvaluator()
+            .setLabelCol("binary")
+            // .setPredictionCol("prediction")
+            // .setMetricName("accuracy")
+        val accuracy1 = evaluator1.evaluate(dData)
+        println("Accuracy = " + accuracy1)
+        
+        val keyElems = rtModel.featureImportances
+        println(keyElems)
+        val keyElems1 = dTreeModel.featureImportances
+        println(keyElems1)
+
+        val karr = keyElems1.toArray 
+        val top3 = (for (i <- 0 until karr.size) yield (i -> karr(i))).sortBy(-_._2).take(3)
+        top3.foreach(d => println(impNames(d._1) -> d._2))
+
+        val nb = new NaiveBayes()
+            .setFeaturesCol("featDrake")
+            .setLabelCol("_c46i")
+        val nbModel = nb.fit(training)
+        val nbData = nbModel.transform(cData)
+        val newEval = new MulticlassClassificationEvaluator()
+            .setLabelCol("_c46i")
+            .setPredictionCol("prediction")
+            .setMetricName("accuracy")
+        val accuracy2 = newEval.evaluate(nbData)
+        println("Accuracy = " + accuracy2)
+
+
+
+
+        
 
 
     }
