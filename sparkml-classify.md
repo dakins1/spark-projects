@@ -78,20 +78,29 @@ numTrees = 10, still 55%
 numTrees = 5, 52%
 
 Using a decision tree:
+
 maxDepth = 25, accuracy was 45%
+
 maxDepth = 15, 48%
+
 maxDepth = 5, 55%
 
 Binary
 
 Using a random forest:
+
 numTrees = 20, accuracy was 85%
+
 numTrees = 10, 84%
+
 numTrees = 5, 84%
 
 Using a decision tree:
+
 maxDepth = 25, accuracy was 77%
+
 maxDepth = 15, still 77%
+
 maxDepth = 5, 82%
 
 For the binary random forest, columns _c22 and _c23 were most important, with a "feature importance" of 0.49843404829778054 and 0.19627203638525764, respectively.
