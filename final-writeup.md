@@ -33,7 +33,7 @@ Because of the random split, I ran each configuration about 5-10 times. Each run
 
 It's hard to gauge how effective this is, because we're using a mean squared error on a scale that is made up. 18 isn't necessarily bad but it's not necessarily good, either. I wouldn't recommend anyone use either the random forest or linear regression to try to predict risky behavior. 
 
-Finally, I tried clustering. For these graphs, I used color for the cluster and size for the risky behavior index. Bigger size = higher index. With this setup, we want the larger dots to all have the same color
+Finally, I tried clustering. For these graphs, I used color for the cluster and size for the risky behavior index. Bigger size = higher index. With this setup, we want the larger dots to all have the same color. That would mean the riskier children were all put in the same group. 
 
 k = 2
 ![k2](src/main/scala/finalproject/k2.png) 
@@ -44,4 +44,10 @@ k = 4
 k = 6
 ![k2](src/main/scala/finalproject/k6Dual.png) 
 
+Unfortunately, most of the large dots have different colors in every iteration. This means the cluster could not identify risky children. What's interesting, though, is how the clustering is more dependent upon parental involvement and environmental instability than it was income. We know this because the income-based graphs have a lot of overlapping clusters, but the environmental and parental graphs have distinct lines. This doesn't necessarily mesh with our other findings, which showed that income was the most correlated value. I don't know why it's doing this.
 
+If we are to trust the data and my algorithms, we have learned that parental involvement and environmenal instability are not likely factors in a child's risky behavior. Income has more correlation, but not a whole lot. I think the idea of creating an index to represent multiple data points is a good idea. So for future studies I would apply the same methdology but for different aspects, like education quality. 
+
+Overall, this dataset did not prove to be easily useful for machine learning. I think to truly produce some good models, you'd need to be knowledgable in both psychology and stats. Psychology will allow you to pick meaningful variables (and perhaps create more meaningful indices), and stats will help you pad the data. With only 5000 families, you don't have a lot of data. If you filter for people who weren't absent for an interview, that number goes down even more. I lost about 1500 families because the child did not participate in the 15 year interview. Hopefully a strong knowledge in statistics would help deal with this, as you can't really impute the missing values.  
+
+It would be interesting to connect this dataset to geographic data, i.e. see where the riskier children lived or grew up. But due to confidentiality issues, the public data only contains the state of a family. It might be useful to pair a child with their state's general education quality, but I don't think that would work too well. Even if you live in the state with the worst education, you could still possibly go to a really good private school. On the other hand, it might be unnecessary to connect to other datasets. This one already contains so much detailed info, you could probably just use the data it's already collected. 
