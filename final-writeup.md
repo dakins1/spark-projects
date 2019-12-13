@@ -1,0 +1,22 @@
+This dataset was produced by a study that found ~5,000 children born from 1998-2000 and conducted interviews with the children and their families. Each family was interviewed when their child was 0, 1, 3, 5, 9, and 15 years old. The study hoped to collect data that would reveal what factors of a child’s life are the most influential in the child’s wellbeing and life choices. Each “wave” of the interview collects a lot of specific data, like the condition of the house and neighborhood of the family, household income, health of the child, sexual activity of the child, and drug/substance use of the child, to name a few. 
+
+The overall focus would be: how much does a child's environment and parental relationships affect their lifestyle choices? Is a child more likely to engage in risky behavior if their parents are less involved growing up? What if their home is "unstable," e.g. they frequently move to a new city? How much influence does income have? 
+
+While more specific questions would be helpful, it is hard to ask them with this dataset. As mentioned earlier, the study collected very specific data. While this is a strength of the dataset, it is also a downside. Each data point is so specific, it is hard to do singular analysis on them. For example, at age 9 the parents are asked how many times the water or electricity was shut off in the last 12 months. At age 15, they ask the child if they have ever stolen anything more than $50. Using the number of times the utilities were shut off to predict how likely a child was to steal something over $50 does not sound like a promising, or helpful, question. Therefore, with this dataset, we have to keep our questions more general. I suppose you could use income as a predictor instead, but still: what does it mean if a 15 year old has or hasn't stolen something $50?
+
+To grapple with the specificity of the dataset, I figured it would be best to pool together variables to represent a more general factor/aspect. The aspects I wanted to use were the child's environmental instability, the parents' involvement with the child, and the risky behavior of the child at age 15. For environmental instability, I used, for both mother and father, how many jobs they held in the past year for that wave, how many new partners they have cohabitated with, and how many times they have moved. These variables were compiled into a "score." The more unstable the environment, the higher the score. For parental involvment, I chose the variables for if the parents attended important events, if they discussed significant decisions with the child, how close the child felt to the parents, and how much time they spent with the child. The higher the score, the less involved the parents were. For risky behavior, the variables were getting stopped by the police, convictions or sentences to juvenille detention, drug use, and sexual activity. The higher the score, the riskier the behavior. Income was averaged across all the available income data for that parent. This method helps deal with a lot of the holes in the dataset. If a parent was absent from a wave, we at least still have a score for them based on the other waves. It also allows helps get away from the specificity of the dataset's questions -- we can identify risky behavior on more than just stealing something > $50. We still get to answer our original question as well, which is seeing how likely environmental and parental factors affects a child's behavior. 
+
+![corMatr](src/main/scala/finalproject/corrMatr.png)
+
+Here is the correlation matrix. It wasn't as promising as I had hoped, but hopefully plotting it conveys more information. 
+
+![income](src/main/scala/finalproject/keepIncome.png) 
+
+This is a good start. We can see that, at least in the extreme cases, there's a pretty obvious trend with income and behavior. Remember, a higher behavioral index means they had more signs of risky behavior. The riskiest child has an income <10000, and the indicies stay below 5 once the incomes are around 3000000. 
+
+![both](src/main/scala/finalproject/both.png)
+
+These two graphs are very surprising to me. I would have thought that less involved parents and more unstable environments lead to riskier behavior, but we actually see a bit of the opposite here in the extreme cases. To better describe this, I think it would good to visualize the income.
+
+![incomePI](src/main/scala/finalproject/incomePI.png)
+![incomeEI](src/main/scala/finalproject/invomeEI.png)

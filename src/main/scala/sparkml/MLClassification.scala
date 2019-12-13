@@ -159,7 +159,7 @@ object MLClassification {
         val newEval = new MulticlassClassificationEvaluator()
             .setLabelCol("_c46i")
             .setPredictionCol("prediction")
-            .setMetricName("accuracy")
+            .setMetricName("accuracy") 
         val accuracy2 = newEval.evaluate(nbData)
         println("Accuracy = " + accuracy2)
 
