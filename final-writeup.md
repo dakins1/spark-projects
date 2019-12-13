@@ -16,7 +16,32 @@ This is a good start. We can see that, at least in the extreme cases, there's a 
 
 ![both](src/main/scala/finalproject/both.png)
 
-These two graphs are very surprising to me. I would have thought that less involved parents and more unstable environments lead to riskier behavior, but we actually see a bit of the opposite here in the extreme cases. To better describe this, I think it would good to visualize the income.
+These two graphs are very surprising to me. I would have thought that less involved parents and more unstable environments lead to riskier behavior, but we actually see a bit of the opposite here in the extreme cases. To better explain this, I think it would good to visualize the income.
 
 ![incomePI](src/main/scala/finalproject/incomePI.png)
 ![incomeEI](src/main/scala/finalproject/invomeEI.png)
+
+For both of these graphs, both size and color represent income. The black dots are > 500000, for reference. They are sorted so that the largest dots are in the deepest "layer" of the image. This is to help with the density of the bottom left corner. With the size and color, we can see families with same index scores but different incomes. 
+
+I am surprised by the size of the dots on the bottom right corners of each graph. Despite the unstable environments or uninvolved parents and low income, those children did not engage in risky behavior. What isn't surprising is the lack of larger dots above a behavior score of 20. Overall, it is hard to walk away with a solid conclusion from these graphs. There just isn't that much consistency with the points, other than the large incomes being below a behavior index of 20. At the very least, it reveals how "normal" out data is -- i.e. there aren't that many edge cases. Almost all the points are in the bottom left corner. Without enough edge cases, it will be hard for any ML algorithms to predict really risky behavior. 
+
+Next up was regression: 
+
+![dTree](src/main/scala/finalproject/dTree.png) 
+
+Because of the random split, I ran each configuration about 5-10 times. Each run got pretty similar results. 
+
+It's hard to gauge how effective this is, because we're using a mean squared error on a scale that is made up. 18 isn't necessarily bad but it's not necessarily good, either. I wouldn't recommend anyone use either the random forest or linear regression to try to predict risky behavior. 
+
+Finally, I tried clustering. For these graphs, I used color for the cluster and size for the risky behavior index. Bigger size = higher index. With this setup, we want the larger dots to all have the same color
+
+k = 2
+![k2](src/main/scala/finalproject/k2.png) 
+k = 3
+![k3](src/main/scala/finalproject/k3.png) 
+k = 4
+![k2](src/main/scala/finalproject/k4Dual.png) 
+k = 6
+![k2](src/main/scala/finalproject/k6Dual.png) 
+
+
