@@ -8,6 +8,12 @@ One interest I would have is whether or not audiences/critics have a bias or pre
 I find my questions about the biases of ratings to be interesting because it might reveal how the film critic industry functions. Everyone loves a movie that film critics despise and hates a movie that film critics praise. Discovering if there are any biases might be able to explain the dichotomy. Perhaps more importantly, though, discovering biases will affect how much I use Rotten Tomatoes to determine if I will spend $10 on a movie or not. 
 I find these questions interesting because they are related to the Auteur Theory in film studies. Film scholars debate whether a movie is the artistic product of a director, producer, or studio. For example, every Marvel movie is very similar, but each one has a different director and producer. On the other hand, all of Quentin Tarantino’s movies are similar, but he has made them across different studios and producers. I don’t think any amount of data could answer this question definitively, although I do think analysis on a large dataset could offer some suggestions or pose new arguments. 
 	Aside from the pursuit of knowledge, answers to these questions could be very helpful for Hollywood. If a studio finds out the director does not matter as much a producer, they can skimp on their director budget and put it towards other, more important factors. While I don’t expect these answers to be groundbreaking, and they probably won’t affect a century-old industry, again, it might shed a little bit of light on a complex problem. 
+
+End of semester review: 
+
+You might be able to answer some really simple questions from this, but I don't think you'd be able to make sweeping claims. A good place to start would be to collect every producer and calculate how consistent their movies' ratings are. Then do the same for director, writer, studio, etc. If any role has an especially high consistency, you could further explore how that role has affected its movies' ratings, both in good and bad ways. I would then see what the data shows to decide what question to ask next. I also think it would be important for your results to be very consistent. E.g., it can't be only a few producers who had high consistency; almost every producer would need to have high consistency, if you wanted to make a strong claim. 
+
+I think you're unlikely to find anything meaningful, though. There are simply too many factors to be able to pinpoint what makes a movie good.
   
   
 https://fragilefamilies.princeton.edu/data-and-documentation/data-contents-overview
@@ -30,6 +36,7 @@ The nature of home environments and lifestyle choices research is, in my opinion
 
 My initial interest in this dataset came from my girlfriend, who used this dataset for her undergraduate honors thesis at UT. I picked it because I knew it was a solid dataset. After looking at it some more, though, I now think machine learning could do a lot with this dataset. If my questions could be answered, they would provide valuable insights to familial psychology. Fun fact, they will conduct another wave of interviews in 2020. The focal children will be 22 by then. Questions will be about “socioeconomic status, family formation, physical and mental health, family relationships and social support, local area contexts, and access to and participation in health care, higher education, housing, and other government programs.”
 
+See my final write up for my answer to this :)
 
 https://opr.princeton.edu/archive/THEOP/
 This is from the same source as the Fragile Families data. So you still need to request permission to see the data, but that link will give you the overview. 
@@ -51,3 +58,9 @@ Overall, was the 10% law a good or bad decision?
 I think most of the analysis will come from the college datasets, although the student dataset may help complement the findings. 
 
 Originally I was hoping to find a dataset that contained thousands of college essays and data about if the application with that essay was accepted, rejected, or waitlisted. I thought it’d be cool to see what words, moods, or tones got accepted. I also thought it’d be interesting if there were trends in what the students wrote about. But I quickly realized this dataset might never exist, since application essays are too personal to be released like that. So this was the next best thing. I still think this dataset will be really interesting, though, because since applying to college I’ve wondered about what the 10% law has accomplished in Texas. And since college admissions is such a mysterious science, I think it will be interesting to see how this law might have affected enrollment. The 10% law is also, in my opinion, a really important law. For most of highschool it was my main goal to be within UT's % threshold for acceptance, so I know what it's like to be affected by this law. Any insight into a law that affects so many futures will be valuable. 
+
+You'd probably be able to answer most of these questions. They are straightforward questions that simple statistics would be able to demonstrate. But given my experience with the Fragile Families dataset, I would try to use other datasets first to answer these questions. This one is pretty small and has only a handful of colleges, whereas you can probably find more general but much more representative datasets that contain similar data. It also probably suffers from the same problem of too-specific questions and missing participants in future waves. 
+
+If you had enough data from other datasets before and after the 1998 law, you could probably get to some really interesting conclusions. Pairing this with geographic data would be really interesting. Color coding data points based on their college experience, then showing how those colors changed over the years would provide a good idea of how college admissions were affected by the law.  
+
+Once I had experimented with bigger datasets, I think I would turn to this dataset to answer more specific questions. But only if the previous analyses made me curious about a specific question. 
