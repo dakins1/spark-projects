@@ -34,17 +34,20 @@ Because of the random split, I ran each configuration about 5-10 times. Each run
 It's hard to gauge how effective this is, because we're using a mean squared error on a scale that is made up. 18 isn't necessarily bad but it's not necessarily good, either. I wouldn't recommend anyone use either the random forest or linear regression to try to predict risky behavior. 
 
 Finally, I tried clustering. For these graphs, I used color for the cluster and size for the risky behavior index. Bigger size = higher index. With this setup, we want the larger dots to all have the same color. That would mean the riskier children were all put in the same group. 
-
 k = 2
+
 ![k2](src/main/scala/finalproject/k2.png) 
 
 k = 3
+
 ![k3](src/main/scala/finalproject/k3.png) 
 
 k = 4
+
 ![k2](src/main/scala/finalproject/k4Dual.png) 
 
 k = 6
+
 ![k2](src/main/scala/finalproject/k6Dual.png) 
 
 Unfortunately, most of the large dots have different colors in every iteration. This means the cluster could not identify risky children. What's interesting, though, is how the clustering is more dependent upon parental involvement and environmental instability than it was income. We know this because the income-based graphs have a lot of overlapping clusters, but the environmental and parental graphs have distinct lines. This doesn't necessarily mesh with our other findings, which showed that income was the most correlated value. I don't know why it's doing this.
